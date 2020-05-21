@@ -40,17 +40,11 @@ int main(int argc, char **argv)
 		plateau.tab[i] = (int *)malloc(plateau.taille * sizeof(int));
 	}
 
-	for (int i = 0; i < plateau.taille; i++)
-	{
-		for (int j = 0; j < plateau.taille; j++)
-		{
-			plateau.tab[i][j] = 0;
-		}
-	}
 	initialisation(plateau);
 	depart(plateau.tab);
 	while (play)
 	{
+
 		// Déclaration de la variable événement
 		SDL_Event event;
 
@@ -90,6 +84,8 @@ int main(int argc, char **argv)
 
 		if(fleche != 0)
 			mouvement(plateau.tab, fleche);
+
+			
 		SDL_RenderClear(renderer);
 		afficherFond(renderer, fenetre);
 		afficherPlateauVide(renderer, plateau);

@@ -161,7 +161,6 @@ void mouvement(int **tab, int n)
             tab[3-i][j] = tab[3-k][j];
             tab[3-k][j] = temp;
           }
-
           else if (tab[3-i][j] != 0 && tab[3-k][j] == tab[3-i][j])
           {
             tab[3-k][j] = 2 * tab[3-i][j];
@@ -171,14 +170,13 @@ void mouvement(int **tab, int n)
       }
     }
   }
-
   else if (n == 4) // Pour aller en bas //
   {
     for (i = 0; i < 4; i++)
     {
       for (j = 0; j < 4; j++)
       {
-        for (k = i; k < 4; k++)
+        for (k = i + 1; k < 4; k++)
         {
           if (tab[i][j] != 0 && tab[k][j] == 0)
           {

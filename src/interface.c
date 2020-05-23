@@ -7,7 +7,6 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "shape2d.h"
-
 #include "header_2048.h"
 
 void afficherFond(SDL_Renderer *renderer, SDL_Rect fenetre)
@@ -27,7 +26,7 @@ void afficherFond(SDL_Renderer *renderer, SDL_Rect fenetre)
 	SHP_PrintSprite(background, renderer);
 }
 
-void afficherPlateauVide(SDL_Renderer *renderer, plateau_2048 plateau) 
+void afficherPlateauVide(SDL_Renderer *renderer, plateau_2048 plateau)
 {
 	SHP_Sprite plateau_fond;
 	plateau_fond.background.x = plateau.x;
@@ -180,10 +179,10 @@ void afficherPlateauPlein(SDL_Renderer *renderer, plateau_2048 plateau)
 				case_pleine.background.w = largeur_case;
 				case_pleine.background.h = largeur_case;
 
-				attributionCouleur(plateau.tab[i][j],&case_pleine.background_color, &case_pleine.text_color);
-			
+				attributionCouleur(plateau.tab[i][j], &case_pleine.background_color, &case_pleine.text_color);
+
 				case_pleine.withText = true;
-				
+
 				sprintf(case_pleine.text, "%d", plateau.tab[i][j]);
 
 				if ((largeur_case / strlen(case_pleine.text)) < largeur_case / 3)
@@ -195,4 +194,134 @@ void afficherPlateauPlein(SDL_Renderer *renderer, plateau_2048 plateau)
 			}
 		}
 	}
+}
+
+/* -------- Fonctions d'animation -------- */
+
+// Fonctions de l'animation de déplacement
+
+// Fonctions de la liste de l'animation de déplacements
+animation_2048 anim_detruire_element(animation_2048 li)
+{
+	// Si la liste est déjà vide ont retourne une liste vide
+	if (li == NULL)
+	{
+		return NULL;
+	}
+	/* Si cela correpond au dernier */
+	if (li->next == NULL)
+	{
+		free(li);
+		li = NULL;
+		return NULL;
+	}
+	/* On récupère l'élément suivant pour le définir comme la liste et on libère le premier*/
+	animation_list_2048 *element;
+	element = malloc(sizeof(*element));
+	element = li->next;
+	free(li);
+	return element;
+}
+
+void anim_detruire_list(animation_2048 *li)
+{
+	while (*li != NULL)
+	{
+		*li = anim_detruire_element(*li);
+	}
+}
+
+void anim_rajoute_element(animation_2048 *li, animation_value_2048 valeur)
+{
+	animation_list_2048 *newElement;
+	newElement = malloc(sizeof(*newElement));
+
+	if (newElement == NULL)
+	{
+		printf("Erreur d'allocation dynamique.\n");
+		exit(EXIT_FAILURE);
+	}
+
+	newElement->next = *li;
+	newElement->value = valeur;
+
+	*li = newElement;
+}
+
+// Fonction permettant d'animer les déplacements avec une liste d'animation
+SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animation_2048 *li)
+{
+	// Si la fonction n'a pas d'animation a faire elle retourne false sinon elle retourn true
+	if (*li == NULL)
+	{
+		return false;
+	}
+
+	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / 100;
+	unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
+
+	animation_list_2048 *temp = *li;
+
+	while (temp != NULL)
+	{
+		SHP_bool egalite_abs = (temp->value.affichage.x >= temp->value.arrive.x - ANIMATION_MAX) && (temp->value.affichage.x <= temp->value.arrive.x + ANIMATION_MAX);
+		SHP_bool egalite_ord = (temp->value.affichage.y >= temp->value.arrive.y - ANIMATION_MAX) && (temp->value.affichage.y <= temp->value.arrive.y + ANIMATION_MAX);
+
+		SHP_bool pas_mouvement = (temp->value.depart.x == temp->value.arrive.x || temp->value.depart.y == temp->value.arrive.y) && (temp->value.depart.x != temp->value.arrive.x || temp->value.depart.y != temp->value.arrive.y);
+		if (egalite_abs && egalite_ord && pas_mouvement)
+		{
+			anim_detruire_list(li);
+			break;
+		}
+		else
+		{
+			temp->value.affichage.x += (temp->value.arrive.x - temp->value.depart.x) / ANIMATION_SPEED;
+			temp->value.affichage.y += (temp->value.arrive.y - temp->value.depart.y) / ANIMATION_SPEED;
+
+			SHP_Sprite case_pleine;
+			case_pleine.background.x = temp->value.affichage.x;
+			case_pleine.background.y = temp->value.affichage.y;
+			case_pleine.background.w = largeur_case;
+			case_pleine.background.h = largeur_case;
+
+			attributionCouleur(plateau.tab[temp->value.depart_int.x][temp-> value.depart.y], &case_pleine.background_color, &case_pleine.text_color);
+
+			case_pleine.withText = true;
+
+			sprintf(case_pleine.text, "%d", plateau.tab[temp->value.depart_int.x][temp->value.depart.y]);
+
+			if ((largeur_case / strlen(case_pleine.text)) < largeur_case / 3)
+				case_pleine.text_size = largeur_case / (strlen(case_pleine.text));
+			else
+				case_pleine.text_size = largeur_case / 3;
+
+			SHP_PrintSprite(case_pleine, renderer);
+
+			temp = temp->next;
+		}
+	}
+
+	return true;
+}
+// Fonction qui permet de debugger la liste d'animation
+void debug_anim_list(animation_list_2048 *li)
+{
+	while (li != NULL)
+	{
+		printf("tab : %d/%d, affichage : %d/%d, depart : %d/%d, arrivee : %d/%d \n", li->value.depart_int.x, li->value.depart_int.y,li->value.affichage.x, li->value.affichage.y, li->value.depart.x, li->value.depart.y, li->value.arrive.x, li->value.arrive.y);
+		li = li->next;
+	}
+}
+// Fonction traduit coord entière de tableau en coordonnées d'affichage
+coordInt_2048 coordTabAcoordAffichage(plateau_2048 plateau, coordInt_2048 coordEntieres)
+{
+	coordInt_2048 coordAffichage;
+
+	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / 100;
+	unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
+
+	coordAffichage.x = plateau.x + coordEntieres.y * (largeur_case + largeur_bordure) + largeur_bordure;
+	coordAffichage.y = plateau.y + coordEntieres.x * (largeur_case + largeur_bordure) + largeur_bordure;
+
+	return coordAffichage;
 }

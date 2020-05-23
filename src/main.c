@@ -9,8 +9,6 @@
 
 #include "header_2048.h"
 
-#define min(a, b) a < b ? a : b
-
 int main(int argc, char **argv)
 {
 	// SDL and TTF init + renderer and window creation
@@ -33,15 +31,32 @@ int main(int argc, char **argv)
 	plateau.y = 150;
 	plateau.taille = 4;
 
-	plateau.tab = (int **)malloc(plateau.taille * sizeof(int *));
+	plateau.tab = creerTab(plateau.taille);
 
-	for (int i = 0; i < plateau.taille; i++)
-	{
-		plateau.tab[i] = (int *)malloc(plateau.taille * sizeof(int));
-	}
+	animation_list_2048 *liste_animation = NULL;
 
+	/*plateau.tab[0][0] = 2;
+	animation_value_2048 element_test;
+	element_test.depart_int.x = 0;
+	element_test.depart_int.y = 0;
+
+	coordInt_2048 arrive_test;
+	arrive_test.x = 0;
+	arrive_test.y = 3;
+
+	element_test.depart = coordTabAcoordAffichage(plateau, element_test.depart_int);
+	element_test.affichage = element_test.depart;
+	element_test.arrive = coordTabAcoordAffichage(plateau, arrive_test);
+
+	anim_rajoute_element(&liste_animation, element_test);*/
 	initialisation(plateau);
 	depart(plateau.tab);
+	SHP_bool enAnimation = true;
+
+	int **tab_temp = creerTab(plateau.taille);
+	int **tab_temp2 = creerTab(plateau.taille);
+	copierPlateauVersTab(plateau, tab_temp2);
+
 	while (play)
 	{
 
@@ -63,17 +78,17 @@ int main(int argc, char **argv)
 			{
 				switch (event.key.keysym.sym)
 				{
-					case SDLK_UP:
-						fleche = 3;
+				case SDLK_UP:
+					fleche = 3;
 					break;
-					case SDLK_DOWN:
-						fleche = 4;
+				case SDLK_DOWN:
+					fleche = 4;
 					break;
-					case SDLK_LEFT:
-						fleche = 2;
+				case SDLK_LEFT:
+					fleche = 2;
 					break;
-					case SDLK_RIGHT:
-						fleche = 1;
+				case SDLK_RIGHT:
+					fleche = 1;
 					break;
 				}
 			}
@@ -82,14 +97,28 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if(fleche != 0)
-			mouvement(plateau.tab, fleche);
+		if (fleche != 0 && !enAnimation)
+		{
+			copierPlateauVersTab(plateau, tab_temp);
+			mouvement(plateau, fleche, &liste_animation);
+			copierPlateauVersTab(plateau, tab_temp2);
+			copierTabVersPlateau(plateau, tab_temp);
+			debug_anim_list(liste_animation);
+		}
 
-			
+
 		SDL_RenderClear(renderer);
 		afficherFond(renderer, fenetre);
 		afficherPlateauVide(renderer, plateau);
-		afficherPlateauPlein(renderer, plateau);
+
+		enAnimation = anim_deplacement(renderer, plateau, &liste_animation);
+
+		if (!enAnimation)
+		{
+			copierTabVersPlateau(plateau, tab_temp2);
+			afficherPlateauPlein(renderer, plateau);
+		}
+		
 		SDL_RenderPresent(renderer);
 
 		frame_limit = SDL_GetTicks() + SHP_FRAME_PER_SECOND;
@@ -97,7 +126,11 @@ int main(int argc, char **argv)
 		frame_limit = SDL_GetTicks() + SHP_FRAME_PER_SECOND;
 	}
 
+	anim_detruire_list(&liste_animation);
 	libererTab(plateau.tab, plateau.taille);
+	libererTab(tab_temp, plateau.taille);
+	libererTab(tab_temp2, plateau.taille);
+
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();

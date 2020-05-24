@@ -261,11 +261,11 @@ SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animatio
 	unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
 
 	animation_list_2048 *temp = *li;
-
+	
 	while (temp != NULL)
 	{
-		SHP_bool egalite_abs = (temp->value.affichage.x >= temp->value.arrive.x - ANIMATION_MAX) && (temp->value.affichage.x <= temp->value.arrive.x + ANIMATION_MAX);
-		SHP_bool egalite_ord = (temp->value.affichage.y >= temp->value.arrive.y - ANIMATION_MAX) && (temp->value.affichage.y <= temp->value.arrive.y + ANIMATION_MAX);
+		SHP_bool egalite_abs = (temp->value.affichage.x >= temp->value.arrive.x - ANIMATION_SPEED) && (temp->value.affichage.x <= temp->value.arrive.x + ANIMATION_SPEED);
+		SHP_bool egalite_ord = (temp->value.affichage.y >= temp->value.arrive.y - ANIMATION_SPEED) && (temp->value.affichage.y <= temp->value.arrive.y + ANIMATION_SPEED);
 
 		SHP_bool pas_mouvement = (temp->value.depart.x == temp->value.arrive.x || temp->value.depart.y == temp->value.arrive.y) && (temp->value.depart.x != temp->value.arrive.x || temp->value.depart.y != temp->value.arrive.y);
 		if (egalite_abs && egalite_ord && pas_mouvement)
@@ -284,11 +284,11 @@ SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animatio
 			case_pleine.background.w = largeur_case;
 			case_pleine.background.h = largeur_case;
 
-			attributionCouleur(plateau.tab[temp->value.depart_int.x][temp-> value.depart.y], &case_pleine.background_color, &case_pleine.text_color);
+			attributionCouleur(temp->value.valeur_case, &case_pleine.background_color, &case_pleine.text_color);
 
 			case_pleine.withText = true;
 
-			sprintf(case_pleine.text, "%d", plateau.tab[temp->value.depart_int.x][temp->value.depart.y]);
+			sprintf(case_pleine.text, "%d", temp->value.valeur_case);
 
 			if ((largeur_case / strlen(case_pleine.text)) < largeur_case / 3)
 				case_pleine.text_size = largeur_case / (strlen(case_pleine.text));
@@ -300,7 +300,7 @@ SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animatio
 			temp = temp->next;
 		}
 	}
-
+	
 	return true;
 }
 // Fonction qui permet de debugger la liste d'animation

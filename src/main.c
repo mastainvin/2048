@@ -51,11 +51,7 @@ int main(int argc, char **argv)
 	anim_rajoute_element(&liste_animation, element_test);*/
 	initialisation(plateau);
 	depart(plateau.tab);
-	SHP_bool enAnimation = true;
-
-	int **tab_temp = creerTab(plateau.taille);
-	int **tab_temp2 = creerTab(plateau.taille);
-	copierPlateauVersTab(plateau, tab_temp2);
+	SHP_bool enAnimation = false;
 
 	while (play)
 	{
@@ -98,14 +94,7 @@ int main(int argc, char **argv)
 		}
 
 		if (fleche != 0 && !enAnimation)
-		{
-			copierPlateauVersTab(plateau, tab_temp);
 			mouvement(plateau, fleche, &liste_animation);
-			copierPlateauVersTab(plateau, tab_temp2);
-			copierTabVersPlateau(plateau, tab_temp);
-			debug_anim_list(liste_animation);
-		}
-
 
 		SDL_RenderClear(renderer);
 		afficherFond(renderer, fenetre);
@@ -114,10 +103,7 @@ int main(int argc, char **argv)
 		enAnimation = anim_deplacement(renderer, plateau, &liste_animation);
 
 		if (!enAnimation)
-		{
-			copierTabVersPlateau(plateau, tab_temp2);
 			afficherPlateauPlein(renderer, plateau);
-		}
 		
 		SDL_RenderPresent(renderer);
 
@@ -128,8 +114,6 @@ int main(int argc, char **argv)
 
 	anim_detruire_list(&liste_animation);
 	libererTab(plateau.tab, plateau.taille);
-	libererTab(tab_temp, plateau.taille);
-	libererTab(tab_temp2, plateau.taille);
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);

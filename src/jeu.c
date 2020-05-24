@@ -30,7 +30,7 @@ void copierTabVersPlateau(plateau_2048 plateau, int **tab)
   }
 }
 
-int  **creerTab(int taille)
+int **creerTab(int taille)
 {
   int **tab;
   tab = (int **)malloc(taille * sizeof(int *));
@@ -103,9 +103,9 @@ void depart(int **tab)
   c = rand() % 4;
   d = rand() % 4;
 
-  tab[a][b] = 2;
+  tab[a][b] = 2 * (rand() % 2 + 1);
 
-  tab[c][d] = 2;
+  tab[c][d] = 2 * (rand() % 2 + 1);
 }
 
 /*-------------------------------*/
@@ -114,21 +114,23 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
 {
   int i;
   int j;
-  int temp = 0;
   int k;
-
+  SHP_bool mouvement = false;
   int a = 0;
   int b;
 
   if (n == 1) // Pour aller à droite //
   {
+    SHP_bool addition = false;
+
     for (i = 0; i < plateau.taille; i++)
     {
-      for (j = 0; j < plateau.taille; j++)
+      for (j = plateau.taille - 1; j >= 0; j--)
       {
         if (plateau.tab[i][j] != 0)
         {
           animation_value_2048 element;
+          element.valeur_case = plateau.tab[i][j];
           element.depart_int.x = i;
           element.depart_int.y = j;
 
@@ -137,69 +139,126 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           coordInt_2048 coordArrive;
           coordArrive = element.depart_int;
 
-          for (k = j + 1; k < plateau.taille; k++)
+          k = j;
+
+          if (j != plateau.taille - 1)
           {
-            if (plateau.tab[i][k] == 0)
+            do
             {
-              coordArrive.x = i;
-              coordArrive.y = k;
-              temp = plateau.tab[i][j];
-              plateau.tab[i][j] = plateau.tab[i][k];
-              plateau.tab[i][k] = temp;
+              k++;
+            } while (k != plateau.taille - 1 && plateau.tab[i][k] == 0);
+          }
+
+          if(k != j)
+            mouvement = true;
+
+          if (plateau.tab[i][k] == 0 || k == j)
+          {
+            coordArrive.x = i;
+            coordArrive.y = k;
+            addition = false;
+            if (k != j)
+            {
+              plateau.tab[i][k] = plateau.tab[i][j];
+              plateau.tab[i][j] = 0;
             }
-            else if (plateau.tab[i][k] == plateau.tab[i][j])
+          }
+          else
+          {
+            if (plateau.tab[i][k] == plateau.tab[i][j] && !addition)
             {
+              addition = true;
               coordArrive.x = i;
               coordArrive.y = k;
               plateau.tab[i][k] = 2 * plateau.tab[i][j];
               plateau.tab[i][j] = 0;
             }
+            else
+            {
+              coordArrive.x = i;
+              coordArrive.y = k - 1;
+              addition = false;
+              if (k - 1 != j)
+              {
+                plateau.tab[i][k - 1] = plateau.tab[i][j];
+                plateau.tab[i][j] = 0;
+              }
+            }
           }
+
           element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
           anim_rajoute_element(li, element);
         }
       }
     }
   }
-
   else if (n == 2) // Pour aller à gauche //
   {
+    SHP_bool addition = false;
 
     for (i = 0; i < plateau.taille; i++)
     {
       for (j = 0; j < plateau.taille; j++)
       {
-        if (plateau.tab[i][3 - j] != 0)
+        if (plateau.tab[i][j] != 0)
         {
           animation_value_2048 element;
+          element.valeur_case = plateau.tab[i][j];
           element.depart_int.x = i;
-          element.depart_int.y = 3 - j;
+          element.depart_int.y = j;
 
           element.depart = coordTabAcoordAffichage(plateau, element.depart_int);
           element.affichage = element.depart;
           coordInt_2048 coordArrive;
           coordArrive = element.depart_int;
-          for (k = j + 1; k < plateau.taille; k++)
+
+          k = j;
+          if (j != 0)
           {
-        
-
-            if (plateau.tab[i][3 - k] == 0)
+            do
             {
-              coordArrive.x = i;
-              coordArrive.y = 3 - k;
-              temp = plateau.tab[i][3 - j];
-              plateau.tab[i][3 - j] = plateau.tab[i][3 - k];
-              plateau.tab[i][3 - k] = temp;
-            }
+              k--;
+            } while (k != 0 && plateau.tab[i][k] == 0);
+          }
 
-            else if (plateau.tab[i][3 - k] == plateau.tab[i][3 - j])
+          if (k != j)
+            mouvement = true;
+
+          if (plateau.tab[i][k] == 0 || k == j)
+          {
+            coordArrive.x = i;
+            coordArrive.y = k;
+            addition = false;
+            if (k != j)
             {
-              coordArrive.x = i;
-              coordArrive.y = 3 - k;
-              plateau.tab[i][3 - k] = 2 * plateau.tab[i][3 - j];
-              plateau.tab[i][3 - j] = 0;
+              plateau.tab[i][k] = plateau.tab[i][j];
+              plateau.tab[i][j] = 0;
             }
           }
+          else
+          {
+            if (plateau.tab[i][k] == plateau.tab[i][j] && !addition)
+            {
+              addition = true;
+              coordArrive.x = i;
+              coordArrive.y = k;
+              plateau.tab[i][k] = 2 * plateau.tab[i][j];
+              plateau.tab[i][j] = 0;
+            }
+            else
+            {
+              addition = false;
+              coordArrive.x = i;
+              coordArrive.y = k + 1;
+
+              if (k + 1 != j)
+              {
+                plateau.tab[i][k + 1] = plateau.tab[i][j];
+                plateau.tab[i][j] = 0;
+              }
+            }
+          }
+
           element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
           anim_rajoute_element(li, element);
         }
@@ -208,50 +267,8 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
   }
   else if (n == 3) // Pour aller en haut //
   {
-    for (i = 0; i < plateau.taille; i++)
-    {
-      for (j = 0; j < plateau.taille; j++)
-      {
-        if (plateau.tab[3 - i][j] != 0)
-        {
-          animation_value_2048 element;
-          element.depart_int.x = 3 - i;
-          element.depart_int.y = j;
+    SHP_bool addition = false;
 
-          element.depart = coordTabAcoordAffichage(plateau, element.depart_int);
-          element.affichage = element.depart;
-          coordInt_2048 coordArrive;
-          coordArrive = element.depart_int;
-
-          for (k = i + 1; k < plateau.taille; k++)
-          {
-           
-            
-
-            if (plateau.tab[3 - k][j] == 0)
-            {
-              coordArrive.x = 3 - k;
-              coordArrive.y = j;
-              temp = plateau.tab[3 - i][j];
-              plateau.tab[3 - i][j] = plateau.tab[3 - k][j];
-              plateau.tab[3 - k][j] = temp;
-            }
-            else if (plateau.tab[3 - k][j] == plateau.tab[3 - i][j])
-            {
-              coordArrive.x = 3 - k;
-              coordArrive.y = j;
-              plateau.tab[3 - k][j] = 2 * plateau.tab[3 - i][j];
-              plateau.tab[3 - i][j] = 0;
-            }
-          }
-          element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
-          anim_rajoute_element(li, element);
-        }
-      }
-    }
-  }
-  else if (n == 4) // Pour aller en bas //
-  {
     for (i = 0; i < plateau.taille; i++)
     {
       for (j = 0; j < plateau.taille; j++)
@@ -259,6 +276,7 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
         if (plateau.tab[i][j] != 0)
         {
           animation_value_2048 element;
+          element.valeur_case = plateau.tab[i][j];
           element.depart_int.x = i;
           element.depart_int.y = j;
 
@@ -267,22 +285,126 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           coordInt_2048 coordArrive;
           coordArrive = element.depart_int;
 
-          for (k = i + 1; k < plateau.taille; k++)
+          k = i;
+          if (i != 0)
           {
-            if (plateau.tab[k][j] == 0)
+            do
             {
-              coordArrive.x = k;
-              coordArrive.y = j;
-              temp = plateau.tab[i][j];
-              plateau.tab[i][j] = plateau.tab[k][j];
-              plateau.tab[k][j] = temp;
+              k--;
+            } while (k != 0 && plateau.tab[k][j] == 0);
+          }
+
+          if (k != i)
+            mouvement = true;
+
+          if (plateau.tab[k][j] == 0 || k == i)
+          {
+            addition = false;
+            coordArrive.x = k;
+            coordArrive.y = j;
+
+            if (k != i)
+            {
+              plateau.tab[k][j] = plateau.tab[i][j];
+              plateau.tab[i][j] = 0;
             }
-            else if (plateau.tab[k][j] == plateau.tab[i][j])
+          }
+          else
+          {
+            if (plateau.tab[k][j] == plateau.tab[i][j] && !addition)
             {
+              addition = true;
               coordArrive.x = k;
               coordArrive.y = j;
               plateau.tab[k][j] = 2 * plateau.tab[i][j];
               plateau.tab[i][j] = 0;
+            }
+            else
+            {
+              addition = false;
+              coordArrive.x = k + 1;
+              coordArrive.y = j;
+
+              if (k + 1 != i)
+              {
+                plateau.tab[k + 1][j] = plateau.tab[i][j];
+                plateau.tab[i][j] = 0;
+              }
+            }
+          }
+
+          element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
+          anim_rajoute_element(li, element);
+        }
+      }
+    }
+  }
+  else if (n == 4) // Pour aller en bas //
+  {
+    SHP_bool addition = false;
+
+    for (i = plateau.taille - 1; i >= 0; i--)
+    {
+      for (j = 0; j < plateau.taille; j++)
+      {
+        if (plateau.tab[i][j] != 0)
+        {
+          animation_value_2048 element;
+          element.valeur_case = plateau.tab[i][j];
+          element.depart_int.x = i;
+          element.depart_int.y = j;
+
+          element.depart = coordTabAcoordAffichage(plateau, element.depart_int);
+          element.affichage = element.depart;
+          coordInt_2048 coordArrive;
+          coordArrive = element.depart_int;
+
+          k = i;
+
+          if (i != plateau.taille - 1)
+          {
+            do
+            {
+              k++;
+            } while (k != plateau.taille - 1 && plateau.tab[k][j] == 0);
+          }
+
+          if (k != i)
+            mouvement = true;
+
+          if (plateau.tab[k][j] == 0 || k == i)
+          {
+            addition = false;
+            coordArrive.x = k;
+            coordArrive.y = j;
+
+            if (k != i)
+            {
+              plateau.tab[k][j] = plateau.tab[i][j];
+              plateau.tab[i][j] = 0;
+            }
+          }
+          else
+          {
+            if (plateau.tab[k][j] == plateau.tab[i][j] && !addition)
+            {
+              addition = true;
+              coordArrive.x = k;
+              coordArrive.y = j;
+              plateau.tab[k][j] = 2 * plateau.tab[i][j];
+              plateau.tab[i][j] = 0;
+            }
+            else
+            {
+              addition = false;
+              coordArrive.x = k - 1;
+              coordArrive.y = j;
+
+              if (k - 1 != i)
+              {
+                plateau.tab[k - 1][j] = plateau.tab[i][j];
+                plateau.tab[i][j] = 0;
+              }
             }
           }
           element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
@@ -292,17 +414,48 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
     }
   }
 
-  a = rand() % plateau.taille;
-  b = rand() % plateau.taille;
-
-  while (plateau.tab[a][b] != 0)
+  if(mouvement == false)
   {
-
-    srand(time(NULL));
-
-    a = rand() % plateau.taille;
-    b = rand() % plateau.taille;
+    anim_detruire_list(li);
   }
+  else
+  {
+    int taille_max_possibilitees = plateau.taille * plateau.taille - 1;
+    coordInt_2048 possibilitees[taille_max_possibilitees];
 
-  plateau.tab[a][b] = 2;
+    for (i = 0; i < taille_max_possibilitees; i++)
+    {
+      possibilitees[i].x = -1;
+      possibilitees[i].y = -1;
+    }
+
+    for (i = 0; i < plateau.taille; i++)
+    {
+      for (j = 0; j < plateau.taille; j++)
+      {
+        if (plateau.tab[i][j] == 0)
+        {
+          k = 0;
+          while (possibilitees[k].x != -1)
+          {
+            k++;
+          }
+          possibilitees[k].x = i;
+          possibilitees[k].y = j;
+        }
+      }
+    }
+    int taille_possibilitees = 0;
+
+    while (possibilitees[taille_possibilitees].x != -1 && taille_possibilitees < taille_max_possibilitees)
+    {
+      taille_possibilitees++;
+    }
+
+    coordInt_2048 nouvelle_case = possibilitees[rand() % taille_possibilitees];
+    a = nouvelle_case.x;
+    b = nouvelle_case.y;
+
+    plateau.tab[a][b] = 2 * (rand() % 2 + 1);
+  }
 }

@@ -9,6 +9,9 @@
 #include "shape2d.h"
 #include "header_2048.h"
 
+/* Fonction d'affichage du jeu basiques */
+
+// Fonction qui permet d'afficher le fond de la fénêtrd
 void afficherFond(SDL_Renderer *renderer, SDL_Rect fenetre)
 {
 	SHP_Sprite background;
@@ -25,7 +28,7 @@ void afficherFond(SDL_Renderer *renderer, SDL_Rect fenetre)
 
 	SHP_PrintSprite(background, renderer);
 }
-
+// Fonction qui permet d'afficher un plateau vide 
 void afficherPlateauVide(SDL_Renderer *renderer, plateau_2048 plateau)
 {
 	SHP_Sprite plateau_fond;
@@ -43,7 +46,7 @@ void afficherPlateauVide(SDL_Renderer *renderer, plateau_2048 plateau)
 	SHP_PrintSprite(plateau_fond, renderer);
 
 	/* Affichage de toutes les cases vides */
-	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / 100;
+	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
 	unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
 
 	for (int i = 0; i < plateau.taille; i++)
@@ -66,7 +69,7 @@ void afficherPlateauVide(SDL_Renderer *renderer, plateau_2048 plateau)
 		}
 	}
 }
-
+// Fonction qui permet d'attribuer des couleurs en fonction d'un nombre
 void attributionCouleur(int n, SDL_Color *color, SDL_Color *text_color)
 {
 
@@ -159,11 +162,11 @@ void attributionCouleur(int n, SDL_Color *color, SDL_Color *text_color)
 		break;
 	}
 }
-
+// Fonction qui affiche un plateau avec les cases le composants
 void afficherPlateauPlein(SDL_Renderer *renderer, plateau_2048 plateau)
 {
 	/* Affichage de toutes les cases */
-	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / 100;
+	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
 	unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
 
 	for (int i = 0; i < plateau.taille; i++)
@@ -201,6 +204,8 @@ void afficherPlateauPlein(SDL_Renderer *renderer, plateau_2048 plateau)
 // Fonctions de l'animation de déplacement
 
 // Fonctions de la liste de l'animation de déplacements
+
+// Fonction detruit un seul élément de la liste d'animations
 animation_2048 anim_detruire_element(animation_2048 li)
 {
 	// Si la liste est déjà vide ont retourne une liste vide
@@ -222,7 +227,7 @@ animation_2048 anim_detruire_element(animation_2048 li)
 	free(li);
 	return element;
 }
-
+// Fonction qui détruit toute une liste d'animations
 void anim_detruire_list(animation_2048 *li)
 {
 	while (*li != NULL)
@@ -230,7 +235,7 @@ void anim_detruire_list(animation_2048 *li)
 		*li = anim_detruire_element(*li);
 	}
 }
-
+// Fonction permettant de rajouter un élément à la liste des animations de déplacements
 void anim_rajoute_element(animation_2048 *li, animation_value_2048 valeur)
 {
 	animation_list_2048 *newElement;
@@ -247,7 +252,6 @@ void anim_rajoute_element(animation_2048 *li, animation_value_2048 valeur)
 
 	*li = newElement;
 }
-
 // Fonction permettant d'animer les déplacements avec une liste d'animation
 SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animation_2048 *li)
 {
@@ -257,11 +261,11 @@ SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animatio
 		return false;
 	}
 
-	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / 100;
+	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
 	unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
 
 	animation_list_2048 *temp = *li;
-	
+
 	while (temp != NULL)
 	{
 		SHP_bool egalite_abs = (temp->value.affichage.x >= temp->value.arrive.x - ANIMATION_SPEED) && (temp->value.affichage.x <= temp->value.arrive.x + ANIMATION_SPEED);
@@ -271,7 +275,7 @@ SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animatio
 		if (egalite_abs && egalite_ord && pas_mouvement)
 		{
 			anim_detruire_list(li);
-			break;
+			return false;
 		}
 		else
 		{
@@ -303,6 +307,126 @@ SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animatio
 	
 	return true;
 }
+// Fonction permettant d'animer l'addition après déplacement
+SHP_bool anim_addition(SDL_Renderer *renderer, plateau_2048 plateau, animation_2048 *li)
+{
+	// Si la fonction n'a pas d'animation a faire elle retourne false sinon elle retourn true
+	if (*li == NULL)
+	{
+		return false;
+	}
+
+	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
+	unsigned int largeur_case_max = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille * 1.25;
+	unsigned int largeur_case_init = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
+
+	animation_list_2048 *temp = *li;
+	SHP_bool addition = false;
+	while (temp != NULL)
+	{
+		SHP_bool egalite = temp->value.affichage.x >= largeur_case_max;
+
+		if (egalite && temp->value.affichage.x > 0)
+		{
+			anim_detruire_list(li);
+			return false;
+		}
+		else
+		{
+			unsigned int largeur_case = largeur_case_init;
+
+			if(temp->value.affichage.x > 0)
+			{
+				addition = true;
+				temp->value.affichage.x += ANIMATION_POP_SPEED;
+				largeur_case = temp->value.affichage.x;
+			}
+
+			SHP_Sprite case_pleine;
+			case_pleine.background.x = temp->value.depart.x - (largeur_case - largeur_case_init) / 2;
+			case_pleine.background.y = temp->value.depart.y - (largeur_case - largeur_case_init) / 2;
+			case_pleine.background.w = largeur_case;
+			case_pleine.background.h = largeur_case;
+
+			attributionCouleur(temp->value.valeur_case, &case_pleine.background_color, &case_pleine.text_color);
+
+			case_pleine.withText = true;
+
+			sprintf(case_pleine.text, "%d", temp->value.valeur_case);
+
+			if ((largeur_case / strlen(case_pleine.text)) < largeur_case / 3)
+				case_pleine.text_size = largeur_case / (strlen(case_pleine.text));
+			else
+				case_pleine.text_size = largeur_case / 3;
+
+			SHP_PrintSprite(case_pleine, renderer);
+
+			temp = temp->next;
+		}
+	}
+	if(!addition)
+	{
+		anim_detruire_list(li);
+		return false;
+	}
+	return true;
+}
+// Fonction qui anime l'apparation de nouvelles cases
+SHP_bool anim_apparition(SDL_Renderer *renderer, plateau_2048 plateau, animation_2048 *li)
+{
+	// Si la fonction n'a pas d'animation a faire elle retourne false sinon elle retourn true
+	if (*li == NULL)
+	{
+		return false;
+	}
+
+	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
+	unsigned int largeur_case_max = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
+
+	animation_list_2048 *temp = *li;
+
+	while (temp != NULL)
+	{
+		SHP_bool egalite = temp->value.affichage.x >= largeur_case_max;
+		if (egalite && temp->value.affichage.x >= 0)
+		{
+			anim_detruire_list(li);
+			return false;
+		}
+		else
+		{
+			unsigned int largeur_case = largeur_case_max; 
+			if(temp->value.affichage.x >= 0)
+			{
+				temp->value.affichage.x += ANIMATION_APP_SPEED;
+				largeur_case = temp->value.affichage.x;
+			}
+
+			SHP_Sprite case_pleine;
+			case_pleine.background.x = temp->value.depart.x + (largeur_case_max - largeur_case) / 2;
+			case_pleine.background.y = temp->value.depart.y + (largeur_case_max - largeur_case) / 2;
+			case_pleine.background.w = largeur_case;
+			case_pleine.background.h = largeur_case;
+
+			attributionCouleur(temp->value.valeur_case, &case_pleine.background_color, &case_pleine.text_color);
+
+			case_pleine.withText = true;
+
+			sprintf(case_pleine.text, "%d", temp->value.valeur_case);
+
+			if ((largeur_case / strlen(case_pleine.text)) < largeur_case / 3)
+				case_pleine.text_size = largeur_case / (strlen(case_pleine.text));
+			else
+				case_pleine.text_size = largeur_case / 3;
+
+			SHP_PrintSprite(case_pleine, renderer);
+
+			temp = temp->next;
+		}
+	}
+
+	return true;
+}
 // Fonction qui permet de debugger la liste d'animation
 void debug_anim_list(animation_list_2048 *li)
 {
@@ -312,12 +436,13 @@ void debug_anim_list(animation_list_2048 *li)
 		li = li->next;
 	}
 }
+
 // Fonction traduit coord entière de tableau en coordonnées d'affichage
 coordInt_2048 coordTabAcoordAffichage(plateau_2048 plateau, coordInt_2048 coordEntieres)
 {
 	coordInt_2048 coordAffichage;
 
-	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / 100;
+	unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
 	unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
 
 	coordAffichage.x = plateau.x + coordEntieres.y * (largeur_case + largeur_bordure) + largeur_bordure;
@@ -325,3 +450,58 @@ coordInt_2048 coordTabAcoordAffichage(plateau_2048 plateau, coordInt_2048 coordE
 
 	return coordAffichage;
 }
+
+/* ------- Affichage score --------- */
+// Toutes les fonctions concernant le score par en fonction d'un plateau à un état donné
+
+// Fonction permettant d'afficher le score d'un joueur 
+void afficher_score(SDL_Renderer *renderer, plateau_2048 plateau, int x, int y)
+{
+	SHP_Sprite score_titre;
+	score_titre.background.x = x;
+	score_titre.background.y = y;
+	score_titre.background.w = 100;
+	score_titre.background.h = 30;
+
+	score_titre.background_color.r = 187;
+	score_titre.background_color.g = 174;
+	score_titre.background_color.b = 160;
+
+	score_titre.withText = true;
+
+	score_titre.text_color.r = 238;
+	score_titre.text_color.g = 228;
+	score_titre.text_color.b = 218;
+
+	score_titre.text_size = 20;
+	strcpy(score_titre.text, "SCORE");
+
+	SHP_PrintSprite(score_titre, renderer);
+
+
+	SHP_Sprite score_affichage;
+
+	score_affichage.background.x = x;
+	score_affichage.background.y = y + 30;
+	score_affichage.background.w = 100;
+	score_affichage.background.h = 40;
+
+	score_affichage.background_color.r = 187;
+	score_affichage.background_color.g = 174;
+	score_affichage.background_color.b = 160;
+
+	score_affichage.withText = true;
+
+	score_affichage.text_color.r = 255;
+	score_affichage.text_color.g = 255;
+	score_affichage.text_color.b = 255;
+
+	score_affichage.text_size = 35;
+
+	sprintf(score_affichage.text, "%d", plateau.score);
+
+	SHP_PrintSprite(score_affichage, renderer);
+}
+
+// Fonction d'affichage du meilleur score
+

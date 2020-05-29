@@ -30,28 +30,21 @@ int main(int argc, char **argv)
 	plateau.x = (fenetre.w - plateau.largeur) / 2;
 	plateau.y = 150;
 	plateau.taille = 4;
-
+	plateau.score = 0;
 	plateau.tab = creerTab(plateau.taille);
 
 	animation_list_2048 *liste_animation = NULL;
+	animation_list_2048 *liste_animation_dep = NULL;
+	animation_list_2048 *liste_animation_app = NULL;
 
-	/*plateau.tab[0][0] = 2;
-	animation_value_2048 element_test;
-	element_test.depart_int.x = 0;
-	element_test.depart_int.y = 0;
+	SHP_bool enMouvement = false;
+	SHP_bool enAddition = false;
+	SHP_bool enApparation = false;
 
-	coordInt_2048 arrive_test;
-	arrive_test.x = 0;
-	arrive_test.y = 3;
-
-	element_test.depart = coordTabAcoordAffichage(plateau, element_test.depart_int);
-	element_test.affichage = element_test.depart;
-	element_test.arrive = coordTabAcoordAffichage(plateau, arrive_test);
-
-	anim_rajoute_element(&liste_animation, element_test);*/
 	initialisation(plateau);
-	depart(plateau.tab);
-	SHP_bool enAnimation = false;
+	depart(plateau);
+
+	position_utilisateur position = unJoueur;
 
 	while (play)
 	{
@@ -92,19 +85,45 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
-
-		if (fleche != 0 && !enAnimation)
-			mouvement(plateau, fleche, &liste_animation);
-
 		SDL_RenderClear(renderer);
 		afficherFond(renderer, fenetre);
-		afficherPlateauVide(renderer, plateau);
 
-		enAnimation = anim_deplacement(renderer, plateau, &liste_animation);
+		switch(position)
+		{
+			case menu_principal:
+			break;
+			case unJoueur:
+			{
+				if (fleche != 0 && !enMouvement && !enAddition && !enApparation)
+					plateau.score += mouvement(plateau, fleche, &liste_animation, &liste_animation_dep, &liste_animation_app);
 
-		if (!enAnimation)
-			afficherPlateauPlein(renderer, plateau);
-		
+				afficherPlateauVide(renderer, plateau);
+
+				enMouvement = anim_deplacement(renderer, plateau, &liste_animation);
+
+				if (!enMouvement)
+				{
+					enAddition = anim_addition(renderer, plateau, &liste_animation_dep);
+					enApparation = anim_apparition(renderer, plateau, &liste_animation_app);
+				}
+
+				if (!enMouvement && !enAddition && !enApparation)
+					afficherPlateauPlein(renderer, plateau);
+
+				afficher_score(renderer, plateau, plateau.largeur + (fenetre.w - plateau.largeur) / 2 - 100, 50);
+			}		
+			break;
+			case deuxJoueur:
+			break;
+			case IA:
+			break;
+			case deuxJoueurArcadeMode:
+			break;
+			default:
+			break;
+		}
+
+	
 		SDL_RenderPresent(renderer);
 
 		frame_limit = SDL_GetTicks() + SHP_FRAME_PER_SECOND;
@@ -113,6 +132,9 @@ int main(int argc, char **argv)
 	}
 
 	anim_detruire_list(&liste_animation);
+	anim_detruire_list(&liste_animation_dep);
+	anim_detruire_list(&liste_animation_app);
+
 	libererTab(plateau.tab, plateau.taille);
 
 	SDL_DestroyWindow(window);

@@ -1,15 +1,26 @@
 #ifndef HEADER_2048_H
 #define HEADER_2048_H
 
-#define BORDER_PURCENT 3.5
-#define ANIMATION_SPEED 8
+#define BORDER_PURCENT 10
+#define ANIMATION_SPEED 6
+#define ANIMATION_POP_SPEED 3
+#define ANIMATION_APP_SPEED 9
 
 #define min(a, b) a < b ? a : b
 #define max(a, b) a > b ? a : b
 
+typedef enum position_utilisateur
+{
+	menu_principal,
+	unJoueur,
+	deuxJoueur,
+	IA,
+	deuxJoueurArcadeMode
+}position_utilisateur;
+
 typedef struct plateau_2048
 {
-	int x, y, largeur, taille;
+	int x, y, largeur, taille, score;
 	int **tab;
 } plateau_2048;
 

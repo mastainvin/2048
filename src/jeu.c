@@ -88,7 +88,7 @@ void initialisation(plateau_2048 plateau)
 
 /*-------------------------------*/
 
-void depart(int **tab)
+void depart(plateau_2048 plateau)
 {
 
   int a;
@@ -98,20 +98,27 @@ void depart(int **tab)
 
   srand(time(NULL));
 
-  a = rand() % 4;
-  b = rand() % 4;
-  c = rand() % 4;
-  d = rand() % 4;
+  a = rand() % plateau.taille;
+  b = rand() % plateau.taille;
+  do
+  {
+    c = rand() % plateau.taille;
+    d = rand() % plateau.taille;
+  } while (a == c && b == d);
 
-  tab[a][b] = 2 * (rand() % 2 + 1);
+  plateau.tab[a][b] = 2 * (rand() % 2 + 1);
 
-  tab[c][d] = 2 * (rand() % 2 + 1);
+  plateau.tab[c][d] = 2 * (rand() % 2 + 1);
 }
 
 /*-------------------------------*/
 
-void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
+int mouvement(plateau_2048 plateau, int n,animation_2048 *li, animation_2048 *anim_dep, animation_2048 *anim_app)
 {
+  unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
+  unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
+
+  int score = 0;
   int i;
   int j;
   int k;
@@ -139,6 +146,11 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           coordInt_2048 coordArrive;
           coordArrive = element.depart_int;
 
+          animation_value_2048 element_dep;
+          element_dep.valeur_case = plateau.tab[i][j];
+          element_dep.affichage.x = -1;
+          element_dep.affichage.y = -1;
+
           k = j;
 
           if (j != plateau.taille - 1)
@@ -149,9 +161,6 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
             } while (k != plateau.taille - 1 && plateau.tab[i][k] == 0);
           }
 
-          if(k != j)
-            mouvement = true;
-
           if (plateau.tab[i][k] == 0 || k == j)
           {
             coordArrive.x = i;
@@ -159,6 +168,7 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
             addition = false;
             if (k != j)
             {
+              mouvement = true;
               plateau.tab[i][k] = plateau.tab[i][j];
               plateau.tab[i][j] = 0;
             }
@@ -167,11 +177,17 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           {
             if (plateau.tab[i][k] == plateau.tab[i][j] && !addition)
             {
+              mouvement = true;
               addition = true;
               coordArrive.x = i;
               coordArrive.y = k;
               plateau.tab[i][k] = 2 * plateau.tab[i][j];
               plateau.tab[i][j] = 0;
+
+              element_dep.affichage.x = largeur_case;
+              element_dep.valeur_case = plateau.tab[i][k];
+
+              score += plateau.tab[i][k];
             }
             else
             {
@@ -180,6 +196,7 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
               addition = false;
               if (k - 1 != j)
               {
+                mouvement = true;
                 plateau.tab[i][k - 1] = plateau.tab[i][j];
                 plateau.tab[i][j] = 0;
               }
@@ -187,7 +204,9 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           }
 
           element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
+          element_dep.depart = element.arrive;
           anim_rajoute_element(li, element);
+          anim_rajoute_element(anim_dep, element_dep);
         }
       }
     }
@@ -212,6 +231,10 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           coordInt_2048 coordArrive;
           coordArrive = element.depart_int;
 
+          animation_value_2048 element_dep;
+          element_dep.valeur_case = plateau.tab[i][j];
+          element_dep.affichage.x = -1;
+
           k = j;
           if (j != 0)
           {
@@ -221,9 +244,6 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
             } while (k != 0 && plateau.tab[i][k] == 0);
           }
 
-          if (k != j)
-            mouvement = true;
-
           if (plateau.tab[i][k] == 0 || k == j)
           {
             coordArrive.x = i;
@@ -231,6 +251,8 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
             addition = false;
             if (k != j)
             {
+              mouvement = true;
+
               plateau.tab[i][k] = plateau.tab[i][j];
               plateau.tab[i][j] = 0;
             }
@@ -239,11 +261,18 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           {
             if (plateau.tab[i][k] == plateau.tab[i][j] && !addition)
             {
+              mouvement = true;
+
               addition = true;
               coordArrive.x = i;
               coordArrive.y = k;
               plateau.tab[i][k] = 2 * plateau.tab[i][j];
               plateau.tab[i][j] = 0;
+
+              element_dep.affichage.x = largeur_case;
+              element_dep.valeur_case = plateau.tab[i][k];
+
+              score += plateau.tab[i][k];
             }
             else
             {
@@ -253,6 +282,7 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
 
               if (k + 1 != j)
               {
+                mouvement = true;
                 plateau.tab[i][k + 1] = plateau.tab[i][j];
                 plateau.tab[i][j] = 0;
               }
@@ -260,7 +290,9 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           }
 
           element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
+          element_dep.depart = element.arrive;
           anim_rajoute_element(li, element);
+          anim_rajoute_element(anim_dep, element_dep);
         }
       }
     }
@@ -269,9 +301,9 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
   {
     SHP_bool addition = false;
 
-    for (i = 0; i < plateau.taille; i++)
+    for (j = 0; j < plateau.taille; j++)
     {
-      for (j = 0; j < plateau.taille; j++)
+      for (i = 0; i < plateau.taille; i++)
       {
         if (plateau.tab[i][j] != 0)
         {
@@ -284,6 +316,10 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           element.affichage = element.depart;
           coordInt_2048 coordArrive;
           coordArrive = element.depart_int;
+
+          animation_value_2048 element_dep;
+          element_dep.valeur_case = plateau.tab[i][j];
+          element_dep.affichage.x = -1;
 
           k = i;
           if (i != 0)
@@ -294,9 +330,6 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
             } while (k != 0 && plateau.tab[k][j] == 0);
           }
 
-          if (k != i)
-            mouvement = true;
-
           if (plateau.tab[k][j] == 0 || k == i)
           {
             addition = false;
@@ -305,6 +338,7 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
 
             if (k != i)
             {
+              mouvement = true;
               plateau.tab[k][j] = plateau.tab[i][j];
               plateau.tab[i][j] = 0;
             }
@@ -313,11 +347,17 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           {
             if (plateau.tab[k][j] == plateau.tab[i][j] && !addition)
             {
+              mouvement = true;
               addition = true;
               coordArrive.x = k;
               coordArrive.y = j;
               plateau.tab[k][j] = 2 * plateau.tab[i][j];
               plateau.tab[i][j] = 0;
+
+              element_dep.affichage.x = largeur_case;
+              element_dep.valeur_case = plateau.tab[k][j];
+
+              score += plateau.tab[k][j];
             }
             else
             {
@@ -327,6 +367,7 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
 
               if (k + 1 != i)
               {
+                mouvement = true;
                 plateau.tab[k + 1][j] = plateau.tab[i][j];
                 plateau.tab[i][j] = 0;
               }
@@ -334,7 +375,9 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           }
 
           element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
+          element_dep.depart = element.arrive;
           anim_rajoute_element(li, element);
+          anim_rajoute_element(anim_dep, element_dep);
         }
       }
     }
@@ -343,13 +386,14 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
   {
     SHP_bool addition = false;
 
-    for (i = plateau.taille - 1; i >= 0; i--)
+    for (j = 0; j < plateau.taille; j++)
     {
-      for (j = 0; j < plateau.taille; j++)
+      for (i = plateau.taille - 1; i >= 0; i--)
       {
         if (plateau.tab[i][j] != 0)
         {
           animation_value_2048 element;
+
           element.valeur_case = plateau.tab[i][j];
           element.depart_int.x = i;
           element.depart_int.y = j;
@@ -358,6 +402,10 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           element.affichage = element.depart;
           coordInt_2048 coordArrive;
           coordArrive = element.depart_int;
+
+          animation_value_2048 element_dep;
+          element_dep.valeur_case = plateau.tab[i][j];
+          element_dep.affichage.x = -1;
 
           k = i;
 
@@ -369,9 +417,6 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
             } while (k != plateau.taille - 1 && plateau.tab[k][j] == 0);
           }
 
-          if (k != i)
-            mouvement = true;
-
           if (plateau.tab[k][j] == 0 || k == i)
           {
             addition = false;
@@ -380,6 +425,7 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
 
             if (k != i)
             {
+              mouvement = true;
               plateau.tab[k][j] = plateau.tab[i][j];
               plateau.tab[i][j] = 0;
             }
@@ -388,11 +434,17 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
           {
             if (plateau.tab[k][j] == plateau.tab[i][j] && !addition)
             {
+              mouvement = true;
               addition = true;
               coordArrive.x = k;
               coordArrive.y = j;
               plateau.tab[k][j] = 2 * plateau.tab[i][j];
               plateau.tab[i][j] = 0;
+
+              element_dep.affichage.x = largeur_case;
+              element_dep.valeur_case = plateau.tab[k][j];
+
+              score += plateau.tab[k][j];
             }
             else
             {
@@ -402,24 +454,48 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
 
               if (k - 1 != i)
               {
+                mouvement = true;
                 plateau.tab[k - 1][j] = plateau.tab[i][j];
                 plateau.tab[i][j] = 0;
               }
             }
           }
           element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
+          element_dep.depart = element.arrive;
           anim_rajoute_element(li, element);
+          anim_rajoute_element(anim_dep, element_dep);
         }
       }
     }
   }
 
-  if(mouvement == false)
+  if (mouvement == false)
   {
     anim_detruire_list(li);
   }
   else
   {
+    for (i = 0; i < plateau.taille; i++)
+    {
+      for (j = 0; j < plateau.taille; j++)
+      {
+        if(plateau.tab[i][j] != 0)
+        {
+          animation_value_2048 element_app;
+          element_app.depart_int.x = i;
+          element_app.depart_int.y = j;
+
+          element_app.depart = coordTabAcoordAffichage(plateau,element_app.depart_int);
+
+          element_app.affichage.x = -1;
+          element_app.valeur_case = plateau.tab[i][j];
+
+          anim_rajoute_element(anim_app,element_app);
+        }
+      }
+      
+    }
+    
     int taille_max_possibilitees = plateau.taille * plateau.taille - 1;
     coordInt_2048 possibilitees[taille_max_possibilitees];
 
@@ -457,5 +533,21 @@ void mouvement(plateau_2048 plateau, int n, animation_2048 *li)
     b = nouvelle_case.y;
 
     plateau.tab[a][b] = 2 * (rand() % 2 + 1);
+
+    animation_value_2048 element_app;
+    element_app.depart_int.x = a;
+    element_app.depart_int.y = b;
+
+    element_app.depart = coordTabAcoordAffichage(plateau, element_app.depart_int);
+
+    element_app.affichage.x = 0;
+    element_app.valeur_case = plateau.tab[a][b];
+
+    anim_rajoute_element(anim_app, element_app);
   }
+
+  return score;
 }
+
+
+

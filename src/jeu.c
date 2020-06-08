@@ -8,6 +8,23 @@
 #include "interface.h"
 #include "header_2048.h"
 
+// Fonction permettant de trier un tableau d'entiers
+void trier_tab(int *tab, int taille)
+{
+  for (int i = 0; i < taille; i++)
+  {
+    int temp = tab[i];
+
+    int j = i;
+    while (j > 0 && tab[j - 1] > temp)
+    {
+      tab[j] = tab[j - 1];
+      j = j - 1;
+    }
+    tab[j] = temp;
+  }
+}
+
 void copierPlateauVersTab(plateau_2048 plateau, int **tab)
 {
   for (int i = 0; i < plateau.taille; i++)
@@ -113,7 +130,7 @@ void depart(plateau_2048 plateau)
 
 /*-------------------------------*/
 
-int mouvement(plateau_2048 plateau, int n,animation_2048 *li, animation_2048 *anim_dep, animation_2048 *anim_app)
+int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *anim_dep, animation_2048 *anim_app)
 {
   unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
   unsigned int largeur_case = (plateau.largeur - largeur_bordure * (plateau.taille + 1)) / plateau.taille;
@@ -479,23 +496,22 @@ int mouvement(plateau_2048 plateau, int n,animation_2048 *li, animation_2048 *an
     {
       for (j = 0; j < plateau.taille; j++)
       {
-        if(plateau.tab[i][j] != 0)
+        if (plateau.tab[i][j] != 0)
         {
           animation_value_2048 element_app;
           element_app.depart_int.x = i;
           element_app.depart_int.y = j;
 
-          element_app.depart = coordTabAcoordAffichage(plateau,element_app.depart_int);
+          element_app.depart = coordTabAcoordAffichage(plateau, element_app.depart_int);
 
           element_app.affichage.x = -1;
           element_app.valeur_case = plateau.tab[i][j];
 
-          anim_rajoute_element(anim_app,element_app);
+          anim_rajoute_element(anim_app, element_app);
         }
       }
-      
     }
-    
+
     int taille_max_possibilitees = plateau.taille * plateau.taille - 1;
     coordInt_2048 possibilitees[taille_max_possibilitees];
 
@@ -549,5 +565,139 @@ int mouvement(plateau_2048 plateau, int n,animation_2048 *li, animation_2048 *an
   return score;
 }
 
+/*------- Fonctions concernant le mode arcade 1vs1 --------*/
+
+// Fonctions des bonus
+
+// Bonus 2 deviennent 8
+void bonus_2to8(plateau_2048 plateau)
+{
+  for (int i = 0; i < plateau.taille; i++)
+  {
+    for (int j = 0; j < plateau.taille; j++)
+    {
+      if (plateau.tab[i][j] == 2)
+      {
+        plateau.tab[i][j] = 8;
+      }
+    }
+  }
+}
+
+// Bonus rangement
+void bonus_rangement(plateau_2048 plateau)
+{
+  int taille_tab_temp = plateau.taille * plateau.taille;
+  int tab[taille_tab_temp];
+
+  for (int i = 0; i < plateau.taille; i++)
+  {
+    for (int j = 0; j < plateau.taille; j++)
+    {
+      tab[plateau.taille * i + j] = plateau.tab[i][j];
+    }
+  }
+
+  trier_tab(tab, taille_tab_temp);
+  
+  for (int i = 0; i < plateau.taille; i++)
+  {
+    for (int j = 0; j < plateau.taille; j++)
+    {
+      plateau.tab[i][j] = tab[i * plateau.taille + j];
+    }
+  }
+}
 
 
+// Bonus détruire
+void bonus_detuire(plateau_2048 plateau)
+{
+  int maximum = -1;
+  int i_temp = -1;
+  int j_temp = -1;
+  for (int i = 0; i < plateau.taille; i++)
+  {
+    for (int j = 0; j < plateau.taille; j++)
+    {
+      if (plateau.tab[i][j] >= maximum)
+      {
+        maximum = plateau.tab[i][j];
+        i_temp = i;
+        j_temp = j;
+      }
+    }
+  }
+  plateau.tab[i_temp][j_temp] = 0;
+}
+
+// Bonus inverser les touches
+
+void bonus_inverserTouches(int *fleche)
+{
+  switch (*fleche)
+  {
+  case 1:
+    *fleche = 2;
+    break;
+  case 2:
+    *fleche = 1;
+    break;
+  case 3:
+    *fleche = 4;
+    break;
+  case 4:
+    *fleche = 3;
+    break;
+  default:
+    break;
+  }
+}
+
+// Bonus mélanger
+
+void bonus_melange(plateau_2048 plateau)
+{
+  int taille_case_tab = plateau.taille * plateau.taille;
+  int i_temp_1, i_temp_2, j_temp_1, j_temp_2;
+  int temp;
+
+  for (int i = 0; i < taille_case_tab; i++)
+  {
+    i_temp_1 = rand() % 4;
+    j_temp_1 = rand() % 4;
+
+    i_temp_2 = rand() % 4;
+    j_temp_2 = rand() % 4;
+
+    temp = plateau.tab[i_temp_1][j_temp_1];
+    plateau.tab[i_temp_1][j_temp_1] = plateau.tab[i_temp_2][j_temp_2];
+    plateau.tab[i_temp_2][j_temp_2] = temp;
+  }
+}
+// Fonction calculant la valeur de la case maximum d'un tableau
+int max_tab(plateau_2048 plateau)
+{
+  int maximum;
+  for (int i = 0; i < plateau.taille; i++)
+  {
+    for (int j = 0; j < plateau.taille; j++)
+    {
+      maximum = max(maximum, plateau.tab[i][j]);
+    }
+  }
+
+  return maximum;
+}
+// Fonction calculant la valeur du prochain palier
+int palier(plateau_2048 plateau)
+{
+ 
+  return max_tab(plateau) * 4;
+}
+
+void  generer_bonus(joueur_arcade_2048 *joueur)
+{
+  joueur->prochain_bonus = rand() % 3 + 1;
+  joueur->prochain_malus = rand() % 3 + 1;
+}

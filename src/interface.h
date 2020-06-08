@@ -25,6 +25,18 @@ SHP_bool anim_apparition(SDL_Renderer *renderer, plateau_2048 plateau, animation
 
 coordInt_2048 coordTabAcoordAffichage(plateau_2048 plateau, coordInt_2048 coordEntieres);
 
-void afficher_score(SDL_Renderer *renderer, plateau_2048 plateau, int x, int y);
+int recommencer(SDL_Renderer *renderer, plateau_2048 plateau, coord_2048 coord_curseur, coord_2048 coord_clic, int x, int y);
+SHP_bool defaite_unJoueur(plateau_2048 plateau);
+
+void afficherTitreJoueur(SDL_Renderer *renderer, plateau_2048 plateau, plateau_2048 plateau2);
+void recommencer_deuxJoueurs(SDL_Renderer *renderer, plateau_2048 plateau, plateau_2048 plateau2, int *score, int *score2, coord_2048 coord_curseur, coord_2048 coord_clic, SDL_Rect fenetre, partie_2048 *partie);
+void afficher_Victoire(SDL_Renderer *renderer, SDL_Rect fenetre, int joueur_gagnant);
+void afficher_Egalite(SDL_Renderer *renderer, SDL_Rect fenetre);
+
+void afficher_prochainBonus(SDL_Renderer *renderer, plateau_2048 plateau, joueur_arcade_2048 joueur);
+void afficher_bonus(SDL_Renderer *renderer, plateau_2048 plateau, joueur_arcade_2048 joueur);
+
+void afficher_info_text(SDL_Renderer *renderer, SDL_Rect *fenetre, int x, int y, char titre[100], char valeur[100]);
+void afficher_info_int(SDL_Renderer *renderer, SDL_Rect *fenetre, int x, int y, char titre[100], int valeur);
 
 #endif

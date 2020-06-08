@@ -1,5 +1,5 @@
 #include "interface.h"
-
+#include "jeu.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +28,7 @@ void afficherFond(SDL_Renderer *renderer, SDL_Rect fenetre)
 
 	SHP_PrintSprite(background, renderer);
 }
-// Fonction qui permet d'afficher un plateau vide 
+// Fonction qui permet d'afficher un plateau vide
 void afficherPlateauVide(SDL_Renderer *renderer, plateau_2048 plateau)
 {
 	SHP_Sprite plateau_fond;
@@ -304,7 +304,7 @@ SHP_bool anim_deplacement(SDL_Renderer *renderer, plateau_2048 plateau, animatio
 			temp = temp->next;
 		}
 	}
-	
+
 	return true;
 }
 // Fonction permettant d'animer l'addition après déplacement
@@ -335,7 +335,7 @@ SHP_bool anim_addition(SDL_Renderer *renderer, plateau_2048 plateau, animation_2
 		{
 			unsigned int largeur_case = largeur_case_init;
 
-			if(temp->value.affichage.x > 0)
+			if (temp->value.affichage.x > 0)
 			{
 				addition = true;
 				temp->value.affichage.x += ANIMATION_POP_SPEED;
@@ -364,7 +364,7 @@ SHP_bool anim_addition(SDL_Renderer *renderer, plateau_2048 plateau, animation_2
 			temp = temp->next;
 		}
 	}
-	if(!addition)
+	if (!addition)
 	{
 		anim_detruire_list(li);
 		return false;
@@ -395,8 +395,8 @@ SHP_bool anim_apparition(SDL_Renderer *renderer, plateau_2048 plateau, animation
 		}
 		else
 		{
-			unsigned int largeur_case = largeur_case_max; 
-			if(temp->value.affichage.x >= 0)
+			unsigned int largeur_case = largeur_case_max;
+			if (temp->value.affichage.x >= 0)
 			{
 				temp->value.affichage.x += ANIMATION_APP_SPEED;
 				largeur_case = temp->value.affichage.x;
@@ -432,7 +432,7 @@ void debug_anim_list(animation_list_2048 *li)
 {
 	while (li != NULL)
 	{
-		printf("tab : %d/%d, affichage : %d/%d, depart : %d/%d, arrivee : %d/%d \n", li->value.depart_int.x, li->value.depart_int.y,li->value.affichage.x, li->value.affichage.y, li->value.depart.x, li->value.depart.y, li->value.arrive.x, li->value.arrive.y);
+		printf("tab : %d/%d, affichage : %d/%d, depart : %d/%d, arrivee : %d/%d \n", li->value.depart_int.x, li->value.depart_int.y, li->value.affichage.x, li->value.affichage.y, li->value.depart.x, li->value.depart.y, li->value.arrive.x, li->value.arrive.y);
 		li = li->next;
 	}
 }
@@ -454,54 +454,406 @@ coordInt_2048 coordTabAcoordAffichage(plateau_2048 plateau, coordInt_2048 coordE
 /* ------- Affichage score --------- */
 // Toutes les fonctions concernant le score par en fonction d'un plateau à un état donné
 
-// Fonction permettant d'afficher le score d'un joueur 
-void afficher_score(SDL_Renderer *renderer, plateau_2048 plateau, int x, int y)
+
+
+// Fonction permettant de recommencer
+int recommencer(SDL_Renderer *renderer, plateau_2048 plateau, coord_2048 coord_curseur, coord_2048 coord_clic, int x, int y)
 {
-	SHP_Sprite score_titre;
-	score_titre.background.x = x;
-	score_titre.background.y = y;
-	score_titre.background.w = 100;
-	score_titre.background.h = 30;
+	int score = plateau.score;
+	SHP_Sprite bouton_recommencer;
+	bouton_recommencer.background.x = x;
+	bouton_recommencer.background.y = y;
+	bouton_recommencer.background.w = 170;
+	bouton_recommencer.background.h = 50;
 
-	score_titre.background_color.r = 187;
-	score_titre.background_color.g = 174;
-	score_titre.background_color.b = 160;
+	if (x == CENTER)
+		bouton_recommencer.background.x = plateau.x + (plateau.largeur - bouton_recommencer.background.w) / 2;
 
-	score_titre.withText = true;
+	if (y == CENTER)
+		bouton_recommencer.background.y = plateau.y + (plateau.largeur - bouton_recommencer.background.h) / 2;
 
-	score_titre.text_color.r = 238;
-	score_titre.text_color.g = 228;
-	score_titre.text_color.b = 218;
+	if (coord_curseur.x >= bouton_recommencer.background.x && coord_curseur.x <= bouton_recommencer.background.x + bouton_recommencer.background.w && coord_curseur.y >= bouton_recommencer.background.y && coord_curseur.y <= bouton_recommencer.background.y + bouton_recommencer.background.h)
+	{
+		bouton_recommencer.background_color.r = 207;
+		bouton_recommencer.background_color.g = 194;
+		bouton_recommencer.background_color.b = 180;
+	}
+	else
+	{
+		bouton_recommencer.background_color.r = 187;
+		bouton_recommencer.background_color.g = 174;
+		bouton_recommencer.background_color.b = 160;
+	}
 
-	score_titre.text_size = 20;
-	strcpy(score_titre.text, "SCORE");
+	bouton_recommencer.withText = true;
 
-	SHP_PrintSprite(score_titre, renderer);
+	bouton_recommencer.text_color.r = 238;
+	bouton_recommencer.text_color.g = 228;
+	bouton_recommencer.text_color.b = 218;
 
+	bouton_recommencer.text_size = 20;
+	strcpy(bouton_recommencer.text, "RECOMMENCER");
 
-	SHP_Sprite score_affichage;
+	SHP_PrintSprite(bouton_recommencer, renderer);
 
-	score_affichage.background.x = x;
-	score_affichage.background.y = y + 30;
-	score_affichage.background.w = 100;
-	score_affichage.background.h = 40;
+	if (coord_clic.x >= bouton_recommencer.background.x && coord_clic.x <= bouton_recommencer.background.x + bouton_recommencer.background.w && coord_clic.y >= bouton_recommencer.background.y && coord_clic.y <= bouton_recommencer.background.y + bouton_recommencer.background.h)
+	{
+		score = 0;
+		initialisation(plateau);
+		depart(plateau);
+	}
 
-	score_affichage.background_color.r = 187;
-	score_affichage.background_color.g = 174;
-	score_affichage.background_color.b = 160;
-
-	score_affichage.withText = true;
-
-	score_affichage.text_color.r = 255;
-	score_affichage.text_color.g = 255;
-	score_affichage.text_color.b = 255;
-
-	score_affichage.text_size = 35;
-
-	sprintf(score_affichage.text, "%d", plateau.score);
-
-	SHP_PrintSprite(score_affichage, renderer);
+	return score;
 }
 
-// Fonction d'affichage du meilleur score
+// Fonction permettant de detecter une défaite
+SHP_bool defaite_unJoueur(plateau_2048 plateau)
+{
+	SHP_bool peut_jouer = false;
 
+	for (int i = 0; i < plateau.taille; i++)
+	{
+		for (int j = 0; j < plateau.taille; j++)
+		{
+			if (j + 1 < plateau.taille)
+			{
+				if (plateau.tab[i][j] == plateau.tab[i][j + 1])
+					peut_jouer = true;
+			}
+
+			if (i + 1 < plateau.taille)
+			{
+				if (plateau.tab[i][j] == plateau.tab[i + 1][j])
+					peut_jouer = true;
+			}
+
+			if (plateau.tab[i][j] == 0)
+				peut_jouer = true;
+		}
+	}
+
+	return peut_jouer;
+}
+
+/* ------- Fonctions affichage mode 2 joueurs --------- */
+
+void afficherTitreJoueur(SDL_Renderer *renderer, plateau_2048 plateau, plateau_2048 plateau2)
+{
+	SHP_Sprite tour_joueur1;
+
+	tour_joueur1.background.x = plateau.x + (plateau.largeur - 170) / 2;
+	tour_joueur1.background.y = plateau.y + plateau.largeur + 25;
+	tour_joueur1.background.w = 170;
+	tour_joueur1.background.h = 50;
+
+	tour_joueur1.background_color.r = 187;
+	tour_joueur1.background_color.g = 174;
+	tour_joueur1.background_color.b = 160;
+
+	tour_joueur1.withText = true;
+
+	tour_joueur1.text_color.r = 255;
+	tour_joueur1.text_color.g = 255;
+	tour_joueur1.text_color.b = 255;
+
+	tour_joueur1.text_size = 20;
+
+	strcpy(tour_joueur1.text, "JOUEUR 1");
+
+	SHP_PrintSprite(tour_joueur1, renderer);
+
+	SHP_Sprite tour_joueur2;
+
+	tour_joueur2.background.x = plateau2.x + (plateau2.largeur - 170) / 2;
+	tour_joueur2.background.y = plateau2.y + plateau2.largeur + 25;
+	tour_joueur2.background.w = 170;
+	tour_joueur2.background.h = 50;
+
+	tour_joueur2.background_color.r = 187;
+	tour_joueur2.background_color.g = 174;
+	tour_joueur2.background_color.b = 160;
+
+	tour_joueur2.withText = true;
+
+	tour_joueur2.text_color.r = 255;
+	tour_joueur2.text_color.g = 255;
+	tour_joueur2.text_color.b = 255;
+
+	tour_joueur2.text_size = 20;
+
+	strcpy(tour_joueur2.text, "JOUEUR 2");
+
+	SHP_PrintSprite(tour_joueur2, renderer);
+}
+
+// Fonction permettant de faire recommencer une partie en mode 2 joueurs
+void recommencer_deuxJoueurs(SDL_Renderer *renderer, plateau_2048 plateau, plateau_2048 plateau2, int *score, int *score2, coord_2048 coord_curseur, coord_2048 coord_clic, SDL_Rect fenetre, partie_2048 *partie)
+{
+	SHP_Sprite bouton_recommencer;
+	bouton_recommencer.background.x = (fenetre.w - 170) / 2;
+	bouton_recommencer.background.y = plateau.y + plateau.largeur + 25;
+	bouton_recommencer.background.w = 170;
+	bouton_recommencer.background.h = 50;
+
+	if (coord_curseur.x >= bouton_recommencer.background.x && coord_curseur.x <= bouton_recommencer.background.x + bouton_recommencer.background.w && coord_curseur.y >= bouton_recommencer.background.y && coord_curseur.y <= bouton_recommencer.background.y + bouton_recommencer.background.h)
+	{
+		bouton_recommencer.background_color.r = 207;
+		bouton_recommencer.background_color.g = 194;
+		bouton_recommencer.background_color.b = 180;
+	}
+	else
+	{
+		bouton_recommencer.background_color.r = 187;
+		bouton_recommencer.background_color.g = 174;
+		bouton_recommencer.background_color.b = 160;
+	}
+
+	bouton_recommencer.withText = true;
+
+	bouton_recommencer.text_color.r = 238;
+	bouton_recommencer.text_color.g = 228;
+	bouton_recommencer.text_color.b = 218;
+
+	bouton_recommencer.text_size = 20;
+	strcpy(bouton_recommencer.text, "RECOMMENCER");
+
+	SHP_PrintSprite(bouton_recommencer, renderer);
+
+	if (coord_clic.x >= bouton_recommencer.background.x && coord_clic.x <= bouton_recommencer.background.x + bouton_recommencer.background.w && coord_clic.y >= bouton_recommencer.background.y && coord_clic.y <= bouton_recommencer.background.y + bouton_recommencer.background.h)
+	{
+		initialisation(plateau);
+		depart(plateau);
+		initialisation(plateau2);
+		depart(plateau2);
+		*score = 0;
+		*score2 = 0;
+		partie->numero_tour = 1;
+		partie->tour = 1;
+	}
+}
+
+void afficher_Victoire(SDL_Renderer *renderer, SDL_Rect fenetre, int joueur_gagnant)
+{
+	SHP_Sprite victoire;
+	victoire.background.x = (fenetre.w - 310) / 2;
+	victoire.background.y = (fenetre.h - 60) / 2;
+	victoire.background.w = 310;
+	victoire.background.h = 60;
+
+	victoire.background_color.r = 187;
+	victoire.background_color.g = 174;
+	victoire.background_color.b = 160;
+
+	victoire.withText = true;
+
+	victoire.text_color.r = 238;
+	victoire.text_color.g = 228;
+	victoire.text_color.b = 218;
+
+	victoire.text_size = 30;
+	sprintf(victoire.text, "VICTOIRE JOUEUR %d", joueur_gagnant);
+
+	SHP_PrintSprite(victoire, renderer);
+}
+void afficher_Egalite(SDL_Renderer *renderer, SDL_Rect fenetre)
+{
+	SHP_Sprite egalite;
+	egalite.background.x = (fenetre.w - 200) / 2;
+	egalite.background.y = (fenetre.h - 60) / 2;
+	egalite.background.w = 200;
+	egalite.background.h = 60;
+
+	egalite.background_color.r = 187;
+	egalite.background_color.g = 174;
+	egalite.background_color.b = 160;
+
+	egalite.withText = true;
+
+	egalite.text_color.r = 238;
+	egalite.text_color.g = 228;
+	egalite.text_color.b = 218;
+
+	egalite.text_size = 30;
+	strcpy(egalite.text, "EGALITE");
+
+	SHP_PrintSprite(egalite, renderer);
+}
+
+void afficher_prochainBonus(SDL_Renderer *renderer, plateau_2048 plateau, joueur_arcade_2048 joueur)
+{
+	switch (joueur.prochain_bonus)
+	{
+	case 1:
+		afficher_info_text(renderer, NULL, plateau.x, plateau.y - 75, "BONUS suiv.", "2 -> 8");
+		break;
+	case 2:
+		afficher_info_text(renderer, NULL, plateau.x, plateau.y - 75, "BONUS suiv.", "Rangement");
+		break;
+	case 3:
+		afficher_info_text(renderer, NULL, plateau.x, plateau.y - 75, "BONUS suiv.", "Rapidité");
+		break;
+	default:
+		afficher_info_text(renderer, NULL, plateau.x, plateau.y - 75, "BONUS suiv.", "Rien");
+		break;
+	}
+
+	switch (joueur.prochain_malus)
+	{
+	case 1:
+		afficher_info_text(renderer, NULL, plateau.x + plateau.largeur - 100, plateau.y - 75, "MALUS suiv.", "Détruire");
+		break;
+	case 2:
+		afficher_info_text(renderer, NULL, plateau.x + plateau.largeur - 100, plateau.y - 75, "MALUS suiv.", "Mélanger");
+		break;
+	case 3:
+		afficher_info_text(renderer, NULL, plateau.x + plateau.largeur - 100, plateau.y - 75, "MALUS suiv.", "Inverser");
+		break;
+	default:
+		afficher_info_text(renderer, NULL, plateau.x + plateau.largeur - 100, plateau.y - 75, "MALUS suiv.", "Rien");
+		break;
+	}
+}
+
+void afficher_bonus(SDL_Renderer *renderer, plateau_2048 plateau, joueur_arcade_2048 joueur)
+{
+	switch (joueur.bonus)
+	{
+	case 1:
+		afficher_info_text(renderer, NULL, plateau.x, plateau.y + plateau.largeur + 10, "BONUS", "2 -> 8");
+
+		break;
+	case 2:
+		afficher_info_text(renderer, NULL, plateau.x, plateau.y + plateau.largeur + 10, "BONUS", "Rangement");
+
+		break;
+	case 3:
+		afficher_info_text(renderer, NULL, plateau.x, plateau.y + plateau.largeur + 10, "BONUS", "Rapidité");
+
+		break;
+
+	default:
+		afficher_info_text(renderer, NULL, plateau.x, plateau.y + plateau.largeur + 10, "BONUS", "Rien");
+
+		break;
+	}
+
+	switch (joueur.malus)
+	{
+	case 1:
+		afficher_info_text(renderer, NULL, plateau.x + plateau.largeur - 100, plateau.y + plateau.largeur + 10, "MALUS", "Détruire");
+		break;
+	case 2:
+		afficher_info_text(renderer, NULL, plateau.x + plateau.largeur - 100, plateau.y + plateau.largeur + 10, "MALUS", "Mélanger");
+		break;
+	case 3:
+		afficher_info_text(renderer, NULL, plateau.x + plateau.largeur - 100, plateau.y + plateau.largeur + 10, "MALUS", "Inverser");
+		break;
+	default:
+		afficher_info_text(renderer, NULL, plateau.x + plateau.largeur - 100, plateau.y + plateau.largeur + 10, "MALUS", "Rien");
+		break;
+	}
+}
+void afficher_info_text(SDL_Renderer *renderer, SDL_Rect *fenetre, int x, int y, char titre[100], char valeur[100])
+{
+	SHP_Sprite info_titre;
+	info_titre.background.x = x;
+	info_titre.background.y = y;
+	info_titre.background.w = 100;
+	info_titre.background.h = 30;
+
+	info_titre.background_color.r = 187;
+	info_titre.background_color.g = 174;
+	info_titre.background_color.b = 160;
+
+	info_titre.withText = true;
+
+	info_titre.text_color.r = 238;
+	info_titre.text_color.g = 228;
+	info_titre.text_color.b = 218;
+
+	info_titre.text_size = 14;
+
+	strcpy(info_titre.text, titre);
+
+	SHP_Sprite info_valeur;
+
+	info_valeur.background.x = info_titre.background.x;
+	info_valeur.background.y = info_titre.background.y + 30;
+	info_valeur.background.w = 100;
+	info_valeur.background.h = 40;
+
+	if (x == CENTER)
+		info_titre.background.x = (fenetre->w - info_titre.background.w) / 2;
+
+	if (y == CENTER)
+		info_titre.background.y = (fenetre->h - info_titre.background.h) / 2;
+
+	info_valeur.background_color.r = 187;
+	info_valeur.background_color.g = 174;
+	info_valeur.background_color.b = 160;
+
+	info_valeur.withText = true;
+
+	info_valeur.text_color.r = 255;
+	info_valeur.text_color.g = 255;
+	info_valeur.text_color.b = 255;
+
+	info_valeur.text_size = 14;
+
+	strcpy(info_valeur.text, valeur);
+
+	SHP_PrintSprite(info_titre, renderer);
+	SHP_PrintSprite(info_valeur, renderer);
+}
+
+void afficher_info_int(SDL_Renderer *renderer, SDL_Rect *fenetre, int x, int y, char titre[100], int valeur)
+{
+	SHP_Sprite info_titre;
+	info_titre.background.x = x;
+	info_titre.background.y = y;
+	info_titre.background.w = 100;
+	info_titre.background.h = 30;
+
+	if (x == CENTER)
+		info_titre.background.x = (fenetre->w - info_titre.background.w) / 2;
+
+	if (y == CENTER)
+		info_titre.background.y = (fenetre->h - info_titre.background.h) / 2;
+
+	info_titre.background_color.r = 187;
+	info_titre.background_color.g = 174;
+	info_titre.background_color.b = 160;
+
+	info_titre.withText = true;
+
+	info_titre.text_color.r = 238;
+	info_titre.text_color.g = 228;
+	info_titre.text_color.b = 218;
+
+	info_titre.text_size = 14;
+
+	strcpy(info_titre.text, titre);
+
+	SHP_Sprite info_valeur;
+
+	info_valeur.background.x = info_titre.background.x;
+	info_valeur.background.y = info_titre.background.y + 30;
+	info_valeur.background.w = 100;
+	info_valeur.background.h = 40;
+
+	info_valeur.background_color.r = 187;
+	info_valeur.background_color.g = 174;
+	info_valeur.background_color.b = 160;
+
+	info_valeur.withText = true;
+
+	info_valeur.text_color.r = 255;
+	info_valeur.text_color.g = 255;
+	info_valeur.text_color.b = 255;
+
+	info_valeur.text_size = 30;
+
+	sprintf(info_valeur.text, "%d", valeur);
+	SHP_PrintSprite(info_titre, renderer);
+	SHP_PrintSprite(info_valeur, renderer);
+}

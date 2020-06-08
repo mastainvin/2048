@@ -2,15 +2,18 @@
 #define HEADER_2048_H
 
 #define BORDER_PURCENT 10
-#define ANIMATION_SPEED 6
-#define ANIMATION_POP_SPEED 3
-#define ANIMATION_APP_SPEED 9
+#define ANIMATION_SPEED 4
+#define ANIMATION_POP_SPEED 5
+#define ANIMATION_APP_SPEED 12
+#define CENTER 99999
+#define TOUR_MAX 30
 
 #define min(a, b) a < b ? a : b
 #define max(a, b) a > b ? a : b
 
 typedef enum position_utilisateur
 {
+	continuer,
 	menu_principal,
 	unJoueur,
 	deuxJoueur,
@@ -20,13 +23,29 @@ typedef enum position_utilisateur
 
 typedef struct plateau_2048
 {
-	int x, y, largeur, taille, score;
+	int x, y, largeur, taille, score, bestscore;
 	int **tab;
 } plateau_2048;
 
+typedef struct partie_2048
+{
+	int tour;
+	int numero_tour;
+}partie_2048;
+
+typedef struct joueur_arcade_2048
+{
+	int bonus, malus;
+	int prochain_bonus, prochain_malus;
+	int palier;
+	int chrono;
+	SHP_bool rapide;
+	SHP_bool inverse;
+}joueur_arcade_2048;
+
 typedef struct coord_2048
 {
-	double x,y;
+	int x,y;
 }coord_2048;
 
 typedef struct coordInt_2048

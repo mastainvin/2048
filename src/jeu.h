@@ -13,4 +13,19 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
 void depart(plateau_2048 plateau);
 void affichage(int **tab);
 void initialisation(plateau_2048 plateau);
+
+void bonus_2to8(plateau_2048 plateau);
+void bonus_rangement(plateau_2048 plateau);
+
+void bonus_detuire(plateau_2048 plateau);
+void bonus_inverserTouches(int *fleche);
+void bonus_melange(plateau_2048 plateau);
+
+void trier_tab(int *tab, int taille);
+
+int max_tab(plateau_2048 plateau);
+int palier(plateau_2048 plateau);
+
+void generer_bonus(joueur_arcade_2048 *joueur);
+
 #endif

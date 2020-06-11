@@ -3,6 +3,9 @@
 
 #include "header_2048.h"
 
+int max_4(int a, int b, int c, int d);
+SHP_bool estEgale(int **tab, int **tab2, int taille);
+void copier_plateau(plateau_2048 plateau, plateau_2048 *nouveau);
 void copierPlateauVersTab(plateau_2048 plateau, int **tab);
 void copierTabVersPlateau(plateau_2048 plateau, int **tab);
 int **creerTab(int taille);

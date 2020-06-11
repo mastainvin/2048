@@ -8,8 +8,8 @@
 #define CENTER 99999
 #define TOUR_MAX 30
 
-#define min(a, b) a < b ? a : b
-#define max(a, b) a > b ? a : b
+#define min(a, b) a<b?a:b
+#define max(a, b) a>b?a:b
 
 typedef enum position_utilisateur
 {
@@ -31,6 +31,7 @@ typedef struct partie_2048
 {
 	int tour;
 	int numero_tour;
+	SHP_bool continuer_apres_2048;
 }partie_2048;
 
 typedef struct joueur_arcade_2048
@@ -66,5 +67,10 @@ typedef struct animation_list_2048
 	struct animation_list_2048 *next;
 }animation_list_2048, *animation_2048;
 
+typedef struct coup_IA
+{
+	int valeur_coup;
+	plateau_2048 position_coup;
+}coup_IA;
 
 #endif

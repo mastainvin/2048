@@ -8,23 +8,6 @@
 #include "interface.h"
 #include "header_2048.h"
 
-// Fonction permettant de trier un tableau d'entiers
-void trier_tab(int *tab, int taille)
-{
-  for (int i = 0; i < taille; i++)
-  {
-    int temp = tab[i];
-
-    int j = i;
-    while (j > 0 && tab[j - 1] > temp)
-    {
-      tab[j] = tab[j - 1];
-      j = j - 1;
-    }
-    tab[j] = temp;
-  }
-}
-
 void copierPlateauVersTab(plateau_2048 plateau, int **tab)
 {
   for (int i = 0; i < plateau.taille; i++)
@@ -46,6 +29,55 @@ void copierTabVersPlateau(plateau_2048 plateau, int **tab)
     }
   }
 }
+
+
+int max_4(int a, int b, int c, int d)
+{
+  int maximum = a;
+  if(b > maximum)
+    maximum = b;
+
+  if (c > maximum)
+    maximum = c;
+
+  if (d > maximum)
+    maximum = d;
+
+  return maximum;
+}
+SHP_bool estEgale(int **tab, int **tab2, int taille)
+{
+  int egale = true;
+  for (int i = 0; i < taille; i++)
+  {
+    for (int j = 0; j < taille; j++)
+    {
+      if(tab[i][j] != tab2[i][j])
+        egale = false;
+    }
+    
+  }
+  return egale;
+  
+}
+// Fonction permettant de trier un tableau d'entiers
+void trier_tab(int *tab, int taille)
+{
+  for (int i = 0; i < taille; i++)
+  {
+    int temp = tab[i];
+
+    int j = i;
+    while (j > 0 && tab[j - 1] > temp)
+    {
+      tab[j] = tab[j - 1];
+      j = j - 1;
+    }
+    tab[j] = temp;
+  }
+}
+
+
 
 int **creerTab(int taille)
 {
@@ -88,6 +120,7 @@ void affichage(int **tab) // Procédure qui permet d'afficher le tableau sur le 
 
     printf("\n");
   }
+  printf("\n");
 }
 
 /*-------------------------------*/
@@ -126,6 +159,20 @@ void depart(plateau_2048 plateau)
   plateau.tab[a][b] = 2 * (rand() % 2 + 1);
 
   plateau.tab[c][d] = 2 * (rand() % 2 + 1);
+}
+
+void copier_plateau(plateau_2048 plateau, plateau_2048 *nouveau)
+{
+  nouveau->taille = plateau.taille;
+  nouveau->bestscore = plateau.bestscore;
+  nouveau->score = plateau.score;
+  nouveau->largeur = plateau.largeur;
+  initialisation(*nouveau);
+  copierPlateauVersTab(plateau, nouveau->tab);
+
+  nouveau->taille = plateau.taille;
+  nouveau->x = plateau.x;
+  nouveau->y = plateau.y;
 }
 
 /*-------------------------------*/

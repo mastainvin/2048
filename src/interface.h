@@ -25,7 +25,11 @@ SHP_bool anim_apparition(SDL_Renderer *renderer, plateau_2048 plateau, animation
 
 coordInt_2048 coordTabAcoordAffichage(plateau_2048 plateau, coordInt_2048 coordEntieres);
 
-int recommencer(SDL_Renderer *renderer, plateau_2048 plateau, coord_2048 coord_curseur, coord_2048 coord_clic, int x, int y);
+SHP_bool atteindre_2048(plateau_2048 plateau);
+SHP_bool continuer_jeu_solo(SDL_Renderer *renderer, SDL_Rect fenetre, coord_2048 coord_curseur, coord_2048 coord_clic);
+
+position_utilisateur quitter(SDL_Renderer *renderer, SDL_Rect fenetre, plateau_2048 plateau1, plateau_2048 plateau2, position_utilisateur position, coord_2048 coord_curseur, coord_2048 coord_clic);
+void recommencer(SDL_Renderer *renderer, SDL_Rect fenetre, partie_2048 *partie, plateau_2048 *plateau, plateau_2048 *plateau2, coord_2048 coord_curseur, coord_2048 coord_clic);
 SHP_bool defaite_unJoueur(plateau_2048 plateau);
 
 void afficherTitreJoueur(SDL_Renderer *renderer, plateau_2048 plateau, plateau_2048 plateau2);

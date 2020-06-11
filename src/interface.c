@@ -454,23 +454,130 @@ coordInt_2048 coordTabAcoordAffichage(plateau_2048 plateau, coordInt_2048 coordE
 /* ------- Affichage score --------- */
 // Toutes les fonctions concernant le score par en fonction d'un plateau à un état donné
 
-
-
-// Fonction permettant de recommencer
-int recommencer(SDL_Renderer *renderer, plateau_2048 plateau, coord_2048 coord_curseur, coord_2048 coord_clic, int x, int y)
+position_utilisateur quitter(SDL_Renderer *renderer, SDL_Rect fenetre, plateau_2048 plateau1, plateau_2048 plateau2, position_utilisateur position, coord_2048 coord_curseur, coord_2048 coord_clic)
 {
-	int score = plateau.score;
+	SHP_Sprite bouton_quitter;
+	bouton_quitter.background.x = (fenetre.w - 170) / 2;
+	bouton_quitter.background.y = fenetre.h - 55;
+	bouton_quitter.background.w = 170;
+	bouton_quitter.background.h = 50;
+
+	if (coord_curseur.x >= bouton_quitter.background.x && coord_curseur.x <= bouton_quitter.background.x + bouton_quitter.background.w && coord_curseur.y >= bouton_quitter.background.y && coord_curseur.y <= bouton_quitter.background.y + bouton_quitter.background.h)
+	{
+		bouton_quitter.background_color.r = 207;
+		bouton_quitter.background_color.g = 194;
+		bouton_quitter.background_color.b = 180;
+	}
+	else
+	{
+		bouton_quitter.background_color.r = 187;
+		bouton_quitter.background_color.g = 174;
+		bouton_quitter.background_color.b = 160;
+	}
+
+	bouton_quitter.withText = true;
+
+	bouton_quitter.text_color.r = 238;
+	bouton_quitter.text_color.g = 228;
+	bouton_quitter.text_color.b = 218;
+
+	bouton_quitter.text_size = 20;
+	strcpy(bouton_quitter.text, "QUITTER");
+
+	SHP_PrintSprite(bouton_quitter, renderer);
+
+	if (coord_clic.x >= bouton_quitter.background.x && coord_clic.x <= bouton_quitter.background.x + bouton_quitter.background.w && coord_clic.y >= bouton_quitter.background.y && coord_clic.y <= bouton_quitter.background.y + bouton_quitter.background.h)
+	{
+		libererTab(plateau1.tab, plateau1.taille);
+		libererTab(plateau2.tab, plateau2.taille);
+		position = menu_principal;
+	}
+
+	return position;
+}
+// Bouton continuer
+SHP_bool continuer_jeu_solo(SDL_Renderer *renderer, SDL_Rect fenetre, coord_2048 coord_curseur, coord_2048 coord_clic)
+{
+	SHP_Sprite fin_2048;
+	fin_2048.background.x = (fenetre.w - 300) / 2;
+	fin_2048.background.y = (fenetre.h - 75) / 2;
+	fin_2048.background.w = 300;
+	fin_2048.background.h = 75;
+
+	fin_2048.background_color.r = 187;
+	fin_2048.background_color.g = 174;
+	fin_2048.background_color.b = 160;
+
+	fin_2048.withText = true;
+
+	fin_2048.text_color.r = 238;
+	fin_2048.text_color.g = 228;
+	fin_2048.text_color.b = 218;
+
+	fin_2048.text_size = 70;
+	strcpy(fin_2048.text, "  2048 !");
+
+	SHP_PrintSprite(fin_2048, renderer);
+
+	SHP_Sprite bouton_continuer;
+	bouton_continuer.background.x = (fenetre.w - 170) / 2;
+	bouton_continuer.background.y = fenetre.h - 170;
+	bouton_continuer.background.w = 170;
+	bouton_continuer.background.h = 50;
+
+	if (coord_curseur.x >= bouton_continuer.background.x && coord_curseur.x <= bouton_continuer.background.x + bouton_continuer.background.w && coord_curseur.y >= bouton_continuer.background.y && coord_curseur.y <= bouton_continuer.background.y + bouton_continuer.background.h)
+	{
+		bouton_continuer.background_color.r = 207;
+		bouton_continuer.background_color.g = 194;
+		bouton_continuer.background_color.b = 180;
+	}
+	else
+	{
+		bouton_continuer.background_color.r = 187;
+		bouton_continuer.background_color.g = 174;
+		bouton_continuer.background_color.b = 160;
+	}
+
+	bouton_continuer.withText = true;
+
+	bouton_continuer.text_color.r = 238;
+	bouton_continuer.text_color.g = 228;
+	bouton_continuer.text_color.b = 218;
+
+	bouton_continuer.text_size = 20;
+	strcpy(bouton_continuer.text, "CONTINUER");
+
+	SHP_PrintSprite(bouton_continuer, renderer);
+
+	if (coord_clic.x >= bouton_continuer.background.x && coord_clic.x <= bouton_continuer.background.x + bouton_continuer.background.w && coord_clic.y >= bouton_continuer.background.y && coord_clic.y <= bouton_continuer.background.y + bouton_continuer.background.h)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+SHP_bool atteindre_2048(plateau_2048 plateau)
+{
+	for (int i = 0; i < plateau.taille; i++)
+	{
+		for (int j = 0; j < plateau.taille; j++)
+		{
+			if(plateau.tab[i][j] == 2048)
+				return true;
+		}
+		
+	}
+	return false;
+}
+// Fonction permettant de recommencer
+void recommencer(SDL_Renderer *renderer, SDL_Rect fenetre, partie_2048 *partie, plateau_2048 *plateau, plateau_2048 *plateau2, coord_2048 coord_curseur, coord_2048 coord_clic)
+{
 	SHP_Sprite bouton_recommencer;
-	bouton_recommencer.background.x = x;
-	bouton_recommencer.background.y = y;
+	bouton_recommencer.background.x = (fenetre.w - 170) / 2;
+	bouton_recommencer.background.y = fenetre.h - 110;
 	bouton_recommencer.background.w = 170;
 	bouton_recommencer.background.h = 50;
-
-	if (x == CENTER)
-		bouton_recommencer.background.x = plateau.x + (plateau.largeur - bouton_recommencer.background.w) / 2;
-
-	if (y == CENTER)
-		bouton_recommencer.background.y = plateau.y + (plateau.largeur - bouton_recommencer.background.h) / 2;
 
 	if (coord_curseur.x >= bouton_recommencer.background.x && coord_curseur.x <= bouton_recommencer.background.x + bouton_recommencer.background.w && coord_curseur.y >= bouton_recommencer.background.y && coord_curseur.y <= bouton_recommencer.background.y + bouton_recommencer.background.h)
 	{
@@ -498,12 +605,18 @@ int recommencer(SDL_Renderer *renderer, plateau_2048 plateau, coord_2048 coord_c
 
 	if (coord_clic.x >= bouton_recommencer.background.x && coord_clic.x <= bouton_recommencer.background.x + bouton_recommencer.background.w && coord_clic.y >= bouton_recommencer.background.y && coord_clic.y <= bouton_recommencer.background.y + bouton_recommencer.background.h)
 	{
-		score = 0;
-		initialisation(plateau);
-		depart(plateau);
-	}
+		plateau->score = 0;
+		initialisation(*plateau);
+		depart(*plateau);
 
-	return score;
+		plateau2->score = 0;
+		initialisation(*plateau2);
+		depart(*plateau2);
+
+		partie->numero_tour = 1;
+		partie->tour = 1;
+		partie->continuer_apres_2048 = false;
+	}
 }
 
 // Fonction permettant de detecter une défaite

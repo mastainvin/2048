@@ -1,3 +1,14 @@
+/**
+* \file jeu.c
+* \brief fonctions de gestions d'actions du 2048
+* \author Vincent Mastain
+* \author Ahmed Trabelsi
+* \version 0.1
+* \date 10 juin 2020
+*	Fonctions modifiant et testant les tableaux. 
+* Remplissage des listes permattant l'affichage d'animations
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -8,6 +19,16 @@
 #include "interface.h"
 #include "header_2048.h"
 
+/**
+* \fn void copierPlateauVersTab(plateau_2048 plateau, int **tab)
+* \brief copie un plateau dans un tableau
+* \author Vincent Mastain
+* \version 0.1
+* \date 2 juin 2020
+* \param plateau plateau du joueur
+* \param tab tableau de taille dynamique
+* \return rien dans tous les cas
+*/
 void copierPlateauVersTab(plateau_2048 plateau, int **tab)
 {
   for (int i = 0; i < plateau.taille; i++)
@@ -19,6 +40,16 @@ void copierPlateauVersTab(plateau_2048 plateau, int **tab)
   }
 }
 
+/**
+* \fn void copierTabVersPlateau(plateau_2048 plateau, int **tab)
+* \brief copie un tableau dans un plateau
+* \author Vincent Mastain
+* \version 0.1
+* \date 2 juin 2020
+* \param plateau plateau du joueur
+* \param tab tableau de taille dynamique
+* \return rien dans tous les cas
+*/
 void copierTabVersPlateau(plateau_2048 plateau, int **tab)
 {
   for (int i = 0; i < plateau.taille; i++)
@@ -30,11 +61,22 @@ void copierTabVersPlateau(plateau_2048 plateau, int **tab)
   }
 }
 
-
+/**
+* \fn int max_4(int a, int b, int c, int d)
+* \brief détermine la max de 4 entier
+* \author Vincent Mastain
+* \version 0.1
+* \date 2 juin 2020
+* \param a entier 1
+* \param b entier 2
+* \param c entier 3
+* \param d entier 4
+* \return l'entier le plus grand
+*/
 int max_4(int a, int b, int c, int d)
 {
   int maximum = a;
-  if(b > maximum)
+  if (b > maximum)
     maximum = b;
 
   if (c > maximum)
@@ -45,6 +87,18 @@ int max_4(int a, int b, int c, int d)
 
   return maximum;
 }
+
+/**
+* \fn SHP_bool estEgale(int **tab, int **tab2, int taille)
+* \brief vérifie l'égalite entre 2 tableaux
+* \author Vincent Mastain
+* \version 0.1
+* \date 2 juin 2020
+* \param tab premier tableau
+* \param tab2 deuxième tableau
+* \param taille taille des deux tableau
+* \return true s'il sont égaux false sinon
+*/
 SHP_bool estEgale(int **tab, int **tab2, int taille)
 {
   int egale = true;
@@ -52,15 +106,23 @@ SHP_bool estEgale(int **tab, int **tab2, int taille)
   {
     for (int j = 0; j < taille; j++)
     {
-      if(tab[i][j] != tab2[i][j])
+      if (tab[i][j] != tab2[i][j])
         egale = false;
     }
-    
   }
   return egale;
-  
 }
-// Fonction permettant de trier un tableau d'entiers
+
+/**
+* \fn void trier_tab(int *tab, int taille)
+* \brief trie par insertion d'un trableaux dynamique
+* \author Vincent Mastain
+* \version 0.1
+* \date 2 juin 2020
+* \param tab tableau
+* \param taille taille du tableau
+* \return rien dans tous les cas
+*/
 void trier_tab(int *tab, int taille)
 {
   for (int i = 0; i < taille; i++)
@@ -77,8 +139,15 @@ void trier_tab(int *tab, int taille)
   }
 }
 
-
-
+/**
+* \fn int **creerTab(int taille)
+* \brief création d'un tableau dynamique
+* \author Vincent Mastain
+* \version 0.1
+* \date 2 juin 2020
+* \param taille taille du tableau
+* \return un tableau de taille taille * taille
+*/
 int **creerTab(int taille)
 {
   int **tab;
@@ -91,6 +160,16 @@ int **creerTab(int taille)
   return tab;
 }
 
+/**
+* \fn void libererTab(int **tab, int taille)
+* \brief libération d'un tableau dynamique
+* \author Vincent Mastain
+* \version 0.1
+* \date 2 juin 2020
+* \param tab tableau à libérer
+* \param taille taille du tableau
+* \return rien dans tous les cas
+*/
 void libererTab(int **tab, int taille)
 {
   for (int i = 0; i < taille; i++)
@@ -100,7 +179,16 @@ void libererTab(int **tab, int taille)
   free(tab);
 }
 
-void affichage(int **tab) // Procédure qui permet d'afficher le tableau sur le terminal
+/**
+* \fn void affichage(int **tab)
+* \brief debugage d'un tableau dynamiqeu
+* \author Ahmed Trabelsi
+* \version 0.1
+* \date 2 juin 2020
+* \param tab tableau à vérier
+* \return rien dans tous les cas
+*/
+void affichage(int **tab)
 {
   int i;
   int j;
@@ -123,8 +211,15 @@ void affichage(int **tab) // Procédure qui permet d'afficher le tableau sur le 
   printf("\n");
 }
 
-/*-------------------------------*/
-
+/**
+* \fn void initialisation(plateau_2048 plateau)
+* \brief initialisation d'un plateau à 0
+* \author Ahmed Trabelsi
+* \version 0.1
+* \date 1 juin 2020
+* \param plateau plateau du joueur de 2048
+* \return rien dans tous les cas
+*/
 void initialisation(plateau_2048 plateau)
 {
   for (int i = 0; i < plateau.taille; i++)
@@ -136,8 +231,16 @@ void initialisation(plateau_2048 plateau)
   }
 }
 
-/*-------------------------------*/
-
+/**
+* \fn void depart(plateau_2048 plateau)
+* \brief départ d'un plateau 
+* \author Ahmed Trabelsi
+* \version 0.1
+* \date 1 juin 2020
+* \param plateau plateau du joueur de 2048
+* \return rien dans tous les cas
+* Mise en place des 2 première case
+*/
 void depart(plateau_2048 plateau)
 {
 
@@ -161,6 +264,16 @@ void depart(plateau_2048 plateau)
   plateau.tab[c][d] = 2 * (rand() % 2 + 1);
 }
 
+/**
+* \fn void copier_plateau(plateau_2048 plateau, plateau_2048 *nouveau)
+* \brief copie d'un plateau vers un autre plateau 
+* \author Mastain Vincent
+* \version 0.1
+* \date 1 juin 2020
+* \param plateau plateau à copier
+* \param nouveau nouveau plateau
+* \return rien dans tous les cas
+*/
 void copier_plateau(plateau_2048 plateau, plateau_2048 *nouveau)
 {
   nouveau->taille = plateau.taille;
@@ -175,8 +288,20 @@ void copier_plateau(plateau_2048 plateau, plateau_2048 *nouveau)
   nouveau->y = plateau.y;
 }
 
-/*-------------------------------*/
-
+/**
+* \fn int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *anim_dep, animation_2048 *anim_app)
+* \brief mouvement d'un joueur 
+* \author Mastain Vincent
+* \author Ahmed Trabelsi
+* \version 0.1
+* \date 1 juin 2020
+* \param plateau plateau du joueur
+* \param n direction du déplacement
+* \param li liste d'animation du déplacement
+* \param anim_dep liste d'animation de l'addition
+* \param anim_app liste d'animation de l'apparation
+* \return le score du coup
+*/
 int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *anim_dep, animation_2048 *anim_app)
 {
   unsigned int largeur_bordure = BORDER_PURCENT * plateau.largeur / (100 * (plateau.taille + 1));
@@ -190,6 +315,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
   int a = 0;
   int b;
 
+  // Suivant la direction qu'a choisis l'utilisateur on déplacem toute les cases au maximum vers la direction
   if (n == 1) // Pour aller à droite //
   {
     SHP_bool addition = false;
@@ -198,8 +324,11 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
     {
       for (j = plateau.taille - 1; j >= 0; j--)
       {
+        // Si la case n'est pas vide
         if (plateau.tab[i][j] != 0)
         {
+
+          // On crée les futures éléments d'animations
           animation_value_2048 element;
           element.valeur_case = plateau.tab[i][j];
           element.depart_int.x = i;
@@ -207,7 +336,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
 
           element.depart = coordTabAcoordAffichage(plateau, element.depart_int);
           element.affichage = element.depart;
-          coordInt_2048 coordArrive;
+          coord_2048 coordArrive;
           coordArrive = element.depart_int;
 
           animation_value_2048 element_dep;
@@ -217,6 +346,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
 
           k = j;
 
+          // On déplace un curseur vers le prochaine case non vide
           if (j != plateau.taille - 1)
           {
             do
@@ -225,6 +355,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
             } while (k != plateau.taille - 1 && plateau.tab[i][k] == 0);
           }
 
+          // Tous les cas de figures que peut avoir addition / bord / collision avec case de diff. valeur
           if (plateau.tab[i][k] == 0 || k == j)
           {
             coordArrive.x = i;
@@ -269,6 +400,8 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
 
           element.arrive = coordTabAcoordAffichage(plateau, coordArrive);
           element_dep.depart = element.arrive;
+
+          // On rajoute à la fin c'est déplacements et additions dans les listes d'animations
           anim_rajoute_element(li, element);
           anim_rajoute_element(anim_dep, element_dep);
         }
@@ -292,7 +425,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
 
           element.depart = coordTabAcoordAffichage(plateau, element.depart_int);
           element.affichage = element.depart;
-          coordInt_2048 coordArrive;
+          coord_2048 coordArrive;
           coordArrive = element.depart_int;
 
           animation_value_2048 element_dep;
@@ -378,7 +511,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
 
           element.depart = coordTabAcoordAffichage(plateau, element.depart_int);
           element.affichage = element.depart;
-          coordInt_2048 coordArrive;
+          coord_2048 coordArrive;
           coordArrive = element.depart_int;
 
           animation_value_2048 element_dep;
@@ -464,7 +597,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
 
           element.depart = coordTabAcoordAffichage(plateau, element.depart_int);
           element.affichage = element.depart;
-          coordInt_2048 coordArrive;
+          coord_2048 coordArrive;
           coordArrive = element.depart_int;
 
           animation_value_2048 element_dep;
@@ -560,7 +693,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
     }
 
     int taille_max_possibilitees = plateau.taille * plateau.taille - 1;
-    coordInt_2048 possibilitees[taille_max_possibilitees];
+    coord_2048 possibilitees[taille_max_possibilitees];
 
     for (i = 0; i < taille_max_possibilitees; i++)
     {
@@ -568,6 +701,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
       possibilitees[i].y = -1;
     }
 
+    // On récupère toutes les cases disponibles
     for (i = 0; i < plateau.taille; i++)
     {
       for (j = 0; j < plateau.taille; j++)
@@ -591,10 +725,12 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
       taille_possibilitees++;
     }
 
-    coordInt_2048 nouvelle_case = possibilitees[rand() % taille_possibilitees];
+    // On détermine l'emplacement de la nouvelle case
+    coord_2048 nouvelle_case = possibilitees[rand() % taille_possibilitees];
     a = nouvelle_case.x;
     b = nouvelle_case.y;
 
+    // On modifie le tableau
     plateau.tab[a][b] = 2 * (rand() % 2 + 1);
 
     animation_value_2048 element_app;
@@ -606,6 +742,7 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
     element_app.affichage.x = 0;
     element_app.valeur_case = plateau.tab[a][b];
 
+    // On rajoute cette case dans la liste d'apparitions
     anim_rajoute_element(anim_app, element_app);
   }
 
@@ -616,7 +753,15 @@ int mouvement(plateau_2048 plateau, int n, animation_2048 *li, animation_2048 *a
 
 // Fonctions des bonus
 
-// Bonus 2 deviennent 8
+/**
+* \fn void bonus_2to8(plateau_2048 plateau)
+* \brief bonus les 2 deviennent des 8 
+* \author Mastain Vincent
+* \version 0.1
+* \date 4 juin 2020
+* \param plateau plateau du joueur
+* \return rien dans tous les cas
+*/
 void bonus_2to8(plateau_2048 plateau)
 {
   for (int i = 0; i < plateau.taille; i++)
@@ -631,7 +776,15 @@ void bonus_2to8(plateau_2048 plateau)
   }
 }
 
-// Bonus rangement
+/**
+* \fn void bonus_rangement(plateau_2048 plateau)
+* \brief bonus rangement des cases
+* \author Mastain Vincent
+* \version 0.1
+* \date 4 juin 2020
+* \param plateau plateau du joueur
+* \return rien dans tous les cas
+*/
 void bonus_rangement(plateau_2048 plateau)
 {
   int taille_tab_temp = plateau.taille * plateau.taille;
@@ -646,7 +799,7 @@ void bonus_rangement(plateau_2048 plateau)
   }
 
   trier_tab(tab, taille_tab_temp);
-  
+
   for (int i = 0; i < plateau.taille; i++)
   {
     for (int j = 0; j < plateau.taille; j++)
@@ -656,8 +809,15 @@ void bonus_rangement(plateau_2048 plateau)
   }
 }
 
-
-// Bonus détruire
+/**
+* \fn void bonus_detuire(plateau_2048 plateau)
+* \brief bonus destruction de la case la plus haute du joueurs adverse
+* \author Mastain Vincent
+* \version 0.1
+* \date 4 juin 2020
+* \param plateau plateau du joueur
+* \return rien dans tous les cas
+*/
 void bonus_detuire(plateau_2048 plateau)
 {
   int maximum = -1;
@@ -678,8 +838,15 @@ void bonus_detuire(plateau_2048 plateau)
   plateau.tab[i_temp][j_temp] = 0;
 }
 
-// Bonus inverser les touches
-
+/**
+* \fn void bonus_inverserTouches(int *fleche)
+* \brief bonus inversion des touches du joueurs adverse
+* \author Mastain Vincent
+* \version 0.1
+* \date 4 juin 2020
+* \param fleche direction désirée
+* \return rien dans tous les cas
+*/
 void bonus_inverserTouches(int *fleche)
 {
   switch (*fleche)
@@ -701,8 +868,15 @@ void bonus_inverserTouches(int *fleche)
   }
 }
 
-// Bonus mélanger
-
+/**
+* \fn void bonus_melange(plateau_2048 plateau)
+* \brief bonus mélange des cases du joueurs adverse
+* \author Mastain Vincent
+* \version 0.1
+* \date 4 juin 2020
+* \param plateau plateau du joueurs adverse
+* \return rien dans tous les cas
+*/
 void bonus_melange(plateau_2048 plateau)
 {
   int taille_case_tab = plateau.taille * plateau.taille;
@@ -722,10 +896,19 @@ void bonus_melange(plateau_2048 plateau)
     plateau.tab[i_temp_2][j_temp_2] = temp;
   }
 }
-// Fonction calculant la valeur de la case maximum d'un tableau
+
+/**
+* \fn int max_tab(plateau_2048 plateau)
+* \brief détermine la case la plus grande d'un plateau
+* \author Mastain Vincent
+* \version 0.1
+* \date 4 juin 2020
+* \param plateau plateau du joueurs adverse
+* \return la valeur la plus grande
+*/
 int max_tab(plateau_2048 plateau)
 {
-  int maximum;
+  int maximum = 0;
   for (int i = 0; i < plateau.taille; i++)
   {
     for (int j = 0; j < plateau.taille; j++)
@@ -736,14 +919,32 @@ int max_tab(plateau_2048 plateau)
 
   return maximum;
 }
-// Fonction calculant la valeur du prochain palier
+
+/**
+* \fn int palier(plateau_2048 plateau)
+* \brief calcule le palier correspondant à un plateau
+* \author Mastain Vincent
+* \version 0.1
+* \date 4 juin 2020
+* \param plateau plateau du joueurs adverse
+* \return le palier
+*/
 int palier(plateau_2048 plateau)
 {
- 
+
   return max_tab(plateau) * 4;
 }
 
-void  generer_bonus(joueur_arcade_2048 *joueur)
+/**
+* \fn void  generer_bonus(joueur_arcade_2048 *joueur)
+* \brief génère les bonus d'un joueurs
+* \author Mastain Vincent
+* \version 0.1
+* \date 4 juin 2020
+* \param joueurs regroupe les bonus et malus d'un joueur
+* \return rien dans tous les cas
+*/
+void generer_bonus(joueur_arcade_2048 *joueur)
 {
   joueur->prochain_bonus = rand() % 3 + 1;
   joueur->prochain_malus = rand() % 3 + 1;

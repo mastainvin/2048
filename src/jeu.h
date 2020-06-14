@@ -1,6 +1,14 @@
 #ifndef JEU_H
 #define JEU_H
 
+/**
+* \file jeu.h
+* \brief prototypes du fichier jeu.c
+* \author Vincent Mastain
+* \version 0.1
+* \date 10 juin 2020
+*/
+
 #include "header_2048.h"
 
 int max_4(int a, int b, int c, int d);
